@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blogs           Blog[]
+  notes           Note[]
+  leetcodeProblems LeetcodeProblem[]
+  interviewNotes  InterviewNote[]
+  topics          Topic[]
+  subTopics       SubTopic[]
+
+  @@map("users")
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String?
+  coverImage  String?
+  category    String
+  subCategory String?
+  tags        String[]
+  published   Boolean  @default(false)
+  readTime    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+
+  topicId String?
+  topic   Topic?  @relation(fields: [topicId], references: [id])
+  
+  subTopicId String?
+  subTopic   SubTopic? @relation(fields: [subTopicId], references: [id])
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("blogs")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  category  String
+  subCategory String?
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  topicId String?
+  topic   Topic?  @relation(fields: [topicId], references: [id])
+  
+  subTopicId String?
+  subTopic   SubTopic? @relation(fields: [subTopicId], references: [id])
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+model Topic {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subTopics SubTopic[]
+  blogs     Blog[]
+  notes     Note[]
+  leetcodeProblems LeetcodeProblem[]
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("topics")
+}
+
+model SubTopic {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  icon        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  blogs     Blog[]
+  notes     Note[]
+  leetcodeProblems LeetcodeProblem[]
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, slug])
+  @@map("sub_topics")
+}
+
+model LeetcodeProblem {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  difficulty  Difficulty
+  tags        String[]
+  solution    String
+  explanation String?
+  timeComplex String?
+  spaceComplex String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  topicId String?
+  topic   Topic?  @relation(fields: [topicId], references: [id])
+  
+  subTopicId String?
+  subTopic   SubTopic? @relation(fields: [subTopicId], references: [id])
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("leetcode_problems")
+}
+
+model InterviewNote {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  company   String?
+  position  String?
+  category  String
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("interview_notes")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
