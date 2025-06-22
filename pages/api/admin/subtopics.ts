@@ -87,8 +87,103 @@ export default async function handler(
           authorId: dbUser.id,
         },
       });
-
       return res.status(201).json(subTopic);
+    }
+
+    if (req.method === "PUT") {
+      const { id, name, slug, description, icon, order, topicId } = req.body;
+
+      if (!id || !name || !slug || !topicId) {
+        return res.status(400).json({
+          message: "ID, name, slug, and topicId are required",
+        });
+      }
+
+      // Check if slug already exists for a different subtopic in the same topic
+      const existingSubTopic = await prisma.subTopic.findFirst({
+        where: {
+          topicId,
+          slug,
+          NOT: { id },
+        },
+      });
+
+      if (existingSubTopic) {
+        return res.status(400).json({
+          message: "A subtopic with this slug already exists in this topic",
+        });
+      }
+
+      const subTopic = await prisma.subTopic.update({
+        where: { id },
+        data: {
+          name,
+          slug,
+          description: description || "",
+          icon: icon || "",
+          order: order || 0,
+          topicId,
+        },
+        include: {
+          _count: {
+            select: {
+              blogs: true,
+              notes: true,
+              leetcodeProblems: true,
+            },
+          },
+        },
+      });
+
+      return res.status(200).json(subTopic);
+    }
+
+    if (req.method === "DELETE") {
+      const { id } = req.body;
+
+      if (!id) {
+        return res.status(400).json({
+          message: "Subtopic ID is required",
+        });
+      }
+
+      // Check if subtopic has any content
+      const subTopic = await prisma.subTopic.findUnique({
+        where: { id },
+        include: {
+          _count: {
+            select: {
+              blogs: true,
+              notes: true,
+              leetcodeProblems: true,
+            },
+          },
+        },
+      });
+
+      if (!subTopic) {
+        return res.status(404).json({
+          message: "Subtopic not found",
+        });
+      }
+
+      const hasContent =
+        subTopic._count.blogs > 0 ||
+        subTopic._count.notes > 0 ||
+        subTopic._count.leetcodeProblems > 0;
+
+      if (hasContent) {
+        return res.status(400).json({
+          message:
+            "Cannot delete subtopic with existing content. Please remove all blogs, notes, and problems first.",
+        });
+      }
+
+      await prisma.subTopic.delete({
+        where: { id },
+      });
+
+      return res.status(200).json({ message: "Subtopic deleted successfully" });
     }
 
     return res.status(405).json({ message: "Method not allowed" });

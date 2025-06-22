@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import AdminLayout from "../../../components/admin/AdminLayout";
-import { Plus, Search, FileText, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, FileText, Edit, Trash2, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface Note {
@@ -163,6 +163,7 @@ export default function NotesManagement() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {" "}
             {filteredNotes.map((note) => (
               <div
                 key={note.id}
@@ -170,10 +171,23 @@ export default function NotesManagement() {
               >
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-semibold text-gray-900 truncate">
-                    {note.title}
-                  </h3>
+                    <button
+                      onClick={() => router.push(`/admin/notes/${note.id}`)}
+                      className="text-left hover:text-blue-600 transition-colors"
+                      title="View note"
+                    >
+                      {note.title}
+                    </button>
+                  </h3>{" "}
                   <div className="flex space-x-2 ml-2">
-                    {" "}
+                    <button
+                      onClick={() => router.push(`/admin/notes/${note.id}`)}
+                      className="text-gray-400 hover:text-green-600 transition-colors"
+                      title="View note"
+                      aria-label={`View note ${note.title}`}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() =>
                         router.push(`/admin/notes/edit/${note.id}`)
@@ -183,7 +197,7 @@ export default function NotesManagement() {
                       aria-label={`Edit note ${note.title}`}
                     >
                       <Edit className="w-4 h-4" />
-                    </button>{" "}
+                    </button>
                     <button
                       onClick={() => deleteNote(note.id)}
                       className="text-gray-400 hover:text-red-600 transition-colors"

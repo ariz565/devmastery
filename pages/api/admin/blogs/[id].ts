@@ -26,12 +26,18 @@ export default async function handler(
     if (!dbUser) {
       return res.status(404).json({ message: "User not found" });
     }
-
     if (req.method === "GET") {
       const blog = await prisma.blog.findFirst({
         where: {
           id: id,
           authorId: dbUser.id,
+        },
+        include: {
+          author: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
 
@@ -41,7 +47,6 @@ export default async function handler(
 
       return res.status(200).json(blog);
     }
-
     if (req.method === "PUT") {
       const {
         title,
@@ -55,7 +60,10 @@ export default async function handler(
       } = req.body;
 
       const blog = await prisma.blog.update({
-        where: { id: id },
+        where: {
+          id: id,
+          authorId: dbUser.id,
+        },
         data: {
           title,
           content,
@@ -67,6 +75,46 @@ export default async function handler(
           readTime,
           publishedAt: published ? new Date() : null,
           updatedAt: new Date(),
+        },
+        include: {
+          author: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      return res.status(200).json(blog);
+    }
+
+    if (req.method === "PATCH") {
+      // For partial updates like toggling publish status
+      const updateData: any = {};
+
+      if (req.body.hasOwnProperty("published")) {
+        updateData.published = req.body.published;
+        updateData.publishedAt = req.body.published ? new Date() : null;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ message: "No valid fields to update" });
+      }
+
+      updateData.updatedAt = new Date();
+
+      const blog = await prisma.blog.update({
+        where: {
+          id: id,
+          authorId: dbUser.id,
+        },
+        data: updateData,
+        include: {
+          author: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
 

@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 // Main topics data
@@ -15,30 +15,30 @@ const webDevTopics = [
         slug: "http-vs-https",
         description: "Understanding the difference between HTTP and HTTPS",
         icon: "🔒",
-        order: 1
+        order: 1,
       },
       {
         name: "WebSockets",
         slug: "websockets",
         description: "Real-time bidirectional communication",
         icon: "⚡",
-        order: 2
+        order: 2,
       },
       {
         name: "WebRTC",
         slug: "webrtc",
         description: "Peer-to-peer real-time communication",
         icon: "📹",
-        order: 3
+        order: 3,
       },
       {
         name: "Webhooks",
         slug: "webhooks",
         description: "Event-driven HTTP callbacks",
         icon: "🔗",
-        order: 4
-      }
-    ]
+        order: 4,
+      },
+    ],
   },
   {
     name: "Authentication & Security",
@@ -52,23 +52,23 @@ const webDevTopics = [
         slug: "jwt",
         description: "Understanding JSON Web Tokens for authentication",
         icon: "🎫",
-        order: 1
+        order: 1,
       },
       {
         name: "Access & Refresh Tokens",
         slug: "access-refresh-tokens",
         description: "Token-based authentication strategies",
         icon: "🔑",
-        order: 2
+        order: 2,
       },
       {
         name: "Cookies",
         slug: "cookies",
         description: "HTTP cookies for session management",
         icon: "🍪",
-        order: 3
-      }
-    ]
+        order: 3,
+      },
+    ],
   },
   {
     name: "Performance & Optimization",
@@ -82,17 +82,17 @@ const webDevTopics = [
         slug: "caching",
         description: "Different caching mechanisms and strategies",
         icon: "💾",
-        order: 1
+        order: 1,
       },
       {
         name: "Server Architecture",
         slug: "server-architecture",
         description: "Understanding server-side architecture",
         icon: "🖥️",
-        order: 2
-      }
-    ]
-  }
+        order: 2,
+      },
+    ],
+  },
 ];
 
 // Content for each topic
@@ -100,7 +100,8 @@ const contentData = {
   "http-vs-https": {
     blog: {
       title: "HTTP vs HTTPS: Understanding Web Security Fundamentals",
-      excerpt: "A comprehensive guide to understanding the differences between HTTP and HTTPS, and why HTTPS is crucial for modern web applications.",
+      excerpt:
+        "A comprehensive guide to understanding the differences between HTTP and HTTPS, and why HTTPS is crucial for modern web applications.",
       content: `# HTTP vs HTTPS: Understanding Web Security Fundamentals
 
 ## Introduction
@@ -269,7 +270,7 @@ The slight performance overhead of HTTPS is negligible compared to its security 
       category: "Web Security",
       tags: ["HTTP", "HTTPS", "SSL", "TLS", "Security", "Web Development"],
       readTime: 8,
-      published: true
+      published: true,
     },
     note: {
       title: "HTTP vs HTTPS - Quick Reference",
@@ -323,14 +324,15 @@ X-Content-Type-Options: nosniff
 - 🔒 with warning (HTTPS with issues)
 `,
       category: "Web Security",
-      tags: ["HTTP", "HTTPS", "Quick Reference", "Security"]
-    }
+      tags: ["HTTP", "HTTPS", "Quick Reference", "Security"],
+    },
   },
 
-  "websockets": {
+  websockets: {
     blog: {
       title: "WebSockets: Real-Time Communication in Web Applications",
-      excerpt: "Master WebSockets for building real-time applications like chat systems, live updates, and collaborative tools.",
+      excerpt:
+        "Master WebSockets for building real-time applications like chat systems, live updates, and collaborative tools.",
       content: `# WebSockets: Real-Time Communication in Web Applications
 
 ## Introduction
@@ -777,9 +779,15 @@ Common use cases include:
 - IoT device communication
 `,
       category: "Real-time Communication",
-      tags: ["WebSockets", "Real-time", "JavaScript", "Node.js", "Communication"],
+      tags: [
+        "WebSockets",
+        "Real-time",
+        "JavaScript",
+        "Node.js",
+        "Communication",
+      ],
       readTime: 12,
-      published: true
+      published: true,
     },
     note: {
       title: "WebSockets - Quick Reference",
@@ -874,24 +882,24 @@ ws.on('message', (data) => {
 - Financial trading platforms
 `,
       category: "Real-time Communication",
-      tags: ["WebSockets", "Quick Reference", "Real-time"]
-    }
-  }
+      tags: ["WebSockets", "Quick Reference", "Real-time"],
+    },
+  },
 };
 
 async function createWebDevContent() {
   try {
-    console.log('🚀 Creating Web Development Topics and Content...');
-    
+    console.log("🚀 Creating Web Development Topics and Content...");
+
     // Get the first user as author (you can modify this logic)
     const user = await prisma.user.findFirst();
     if (!user) {
-      throw new Error('No users found. Please create a user first.');
+      throw new Error("No users found. Please create a user first.");
     }
 
     for (const topicData of webDevTopics) {
       console.log(`\n📁 Creating topic: ${topicData.name}`);
-      
+
       // Create main topic
       const topic = await prisma.topic.upsert({
         where: { slug: topicData.slug },
@@ -902,18 +910,18 @@ async function createWebDevContent() {
           description: topicData.description,
           icon: topicData.icon,
           order: topicData.order,
-          authorId: user.id
-        }
-      });      // Create subtopics
+          authorId: user.id,
+        },
+      }); // Create subtopics
       for (const subTopicData of topicData.subTopics) {
         console.log(`  📄 Creating subtopic: ${subTopicData.name}`);
-        
+
         const subTopic = await prisma.subTopic.upsert({
-          where: { 
+          where: {
             topicId_slug: {
               topicId: topic.id,
-              slug: subTopicData.slug
-            }
+              slug: subTopicData.slug,
+            },
           },
           update: {},
           create: {
@@ -923,22 +931,23 @@ async function createWebDevContent() {
             icon: subTopicData.icon,
             order: subTopicData.order,
             topicId: topic.id,
-            authorId: user.id
-          }
+            authorId: user.id,
+          },
         });
 
         // Create content if available
         const content = contentData[subTopicData.slug];
-        if (content) {          // Create blog
+        if (content) {
+          // Create blog
           if (content.blog) {
             console.log(`    📝 Creating blog: ${content.blog.title}`);
-            
+
             // Check if blog already exists
             const existingBlog = await prisma.blog.findFirst({
               where: {
                 title: content.blog.title,
-                authorId: user.id
-              }
+                authorId: user.id,
+              },
             });
 
             if (!existingBlog) {
@@ -947,8 +956,8 @@ async function createWebDevContent() {
                   ...content.blog,
                   topicId: topic.id,
                   subTopicId: subTopic.id,
-                  authorId: user.id
-                }
+                  authorId: user.id,
+                },
               });
             } else {
               console.log(`    ⏭️ Blog already exists: ${content.blog.title}`);
@@ -958,13 +967,13 @@ async function createWebDevContent() {
           // Create note
           if (content.note) {
             console.log(`    📋 Creating note: ${content.note.title}`);
-            
+
             // Check if note already exists
             const existingNote = await prisma.note.findFirst({
               where: {
                 title: content.note.title,
-                authorId: user.id
-              }
+                authorId: user.id,
+              },
             });
 
             if (!existingNote) {
@@ -973,8 +982,8 @@ async function createWebDevContent() {
                   ...content.note,
                   topicId: topic.id,
                   subTopicId: subTopic.id,
-                  authorId: user.id
-                }
+                  authorId: user.id,
+                },
               });
             } else {
               console.log(`    ⏭️ Note already exists: ${content.note.title}`);
@@ -984,14 +993,18 @@ async function createWebDevContent() {
       }
     }
 
-    console.log('\n✅ Successfully created all web development content!');
-    console.log('\n📊 Summary:');
+    console.log("\n✅ Successfully created all web development content!");
+    console.log("\n📊 Summary:");
     console.log(`- Topics: ${webDevTopics.length}`);
-    console.log(`- Subtopics: ${webDevTopics.reduce((acc, topic) => acc + topic.subTopics.length, 0)}`);
+    console.log(
+      `- Subtopics: ${webDevTopics.reduce(
+        (acc, topic) => acc + topic.subTopics.length,
+        0
+      )}`
+    );
     console.log(`- Content pieces: ${Object.keys(contentData).length * 2}`);
-
   } catch (error) {
-    console.error('❌ Error creating content:', error);
+    console.error("❌ Error creating content:", error);
   } finally {
     await prisma.$disconnect();
   }

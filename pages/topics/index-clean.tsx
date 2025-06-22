@@ -166,60 +166,52 @@ export default function TopicsIndexPage() {
 
   const { totalTopics, totalSubTopics, totalBlogs, totalNotes } =
     getStatsData();
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation Bar */}
+      <AuthNavbar />
+
+      {/* Page Header with Search */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Left side - Empty for spacing */}
-            <div></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Learning Topics
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Explore programming languages, system design, and technical
+                concepts
+              </p>
+            </div>
 
-            {/* Right side - Navigation */}
-            <AuthNavbar />
-          </div>
-        </div>
-      </div>
-      {/* Professional Header Section */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              Learning Topics
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Comprehensive study materials organized by programming languages,
-              system design, and technical concepts
-            </p>
-          </div>
-
-          {/* Search Section - Centered */}
-          <div className="max-w-2xl mx-auto">
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-              {/* Search Input */}
-              <div className="relative flex-1 w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            {/* Search Section */}
+            <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
+              {/* Quick Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Search topics, subtopics, or content..."
+                  placeholder="Search topics..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-3 w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="pl-10 pr-4 py-2 w-full lg:w-64 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
-              {/* Filters Button */}
+              {/* Advanced Search Toggle */}
               <button
                 onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-                className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors"
               >
                 <Filter className="w-4 h-4" />
-                Advanced Filters
+                Filters
               </button>
             </div>
           </div>
         </div>
       </div>
+
       {/* Advanced Search Panel */}
       {showAdvancedSearch && (
         <div className="bg-white border-b border-gray-200 shadow-sm">
@@ -234,7 +226,8 @@ export default function TopicsIndexPage() {
               >
                 ✕
               </button>
-            </div>{" "}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               {/* Category Filter */}
               <div>
@@ -245,7 +238,6 @@ export default function TopicsIndexPage() {
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  aria-label="Filter by category"
                 >
                   <option value="all">All Categories</option>
                   <option value="programming">Programming Languages</option>
@@ -274,6 +266,7 @@ export default function TopicsIndexPage() {
                 </div>
               </div>
             </div>
+
             {/* Search Results Summary */}
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <span>
@@ -293,44 +286,53 @@ export default function TopicsIndexPage() {
             </div>
           </div>
         </div>
-      )}{" "}
-      {/* Clean Professional Stats Section */}
-      <div className="bg-gray-100 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-2xl font-bold text-gray-900">
-                {totalTopics}
+      )}
+
+      {/* Stats Summary */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <FolderTree className="w-8 h-8" />
               </div>
-              <div className="text-sm text-gray-600 mt-1">Learning Topics</div>
+              <div className="text-2xl font-bold">{totalTopics}</div>
+              <div className="text-blue-100">Topics</div>
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-2xl font-bold text-gray-900">
-                {totalSubTopics}
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Code className="w-8 h-8" />
               </div>
-              <div className="text-sm text-gray-600 mt-1">
-                Specialized Areas
-              </div>
+              <div className="text-2xl font-bold">{totalSubTopics}</div>
+              <div className="text-blue-100">Subtopics</div>
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-2xl font-bold text-gray-900">
-                {totalBlogs}
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <FileText className="w-8 h-8" />
               </div>
-              <div className="text-sm text-gray-600 mt-1">Study Articles</div>
+              <div className="text-2xl font-bold">{totalBlogs}</div>
+              <div className="text-blue-100">Blogs</div>
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-2xl font-bold text-gray-900">
-                {totalNotes}
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <StickyNote className="w-8 h-8" />
               </div>
-              <div className="text-sm text-gray-600 mt-1">Reference Notes</div>
+              <div className="text-2xl font-bold">{totalNotes}</div>
+              <div className="text-blue-100">Notes</div>
             </div>
           </div>
         </div>
       </div>
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {" "}
-        <Breadcrumb items={[{ label: "Topics" }]} />
+        <Breadcrumb
+          items={[
+            { title: "Home", href: "/" },
+            { title: "Topics", href: "/topics" },
+          ]}
+        />
+
         {/* Topics Grid */}
         <div className="mt-8 space-y-8">
           {filteredTopics.length === 0 ? (
@@ -441,6 +443,7 @@ export default function TopicsIndexPage() {
           )}
         </div>
       </div>
+
       {/* Background Pattern */}
       <DotPattern
         className="fixed inset-0 -z-10 opacity-20"

@@ -26,12 +26,25 @@ export default async function handler(
     if (!dbUser) {
       return res.status(404).json({ message: "User not found" });
     }
-
     if (req.method === "GET") {
       const note = await prisma.note.findFirst({
         where: {
           id: id,
           authorId: dbUser.id,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          topic: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       });
 

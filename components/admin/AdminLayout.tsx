@@ -107,12 +107,19 @@ function SidebarContent({ pathname }: { pathname: string }) {
   return (
     <div className="flex flex-1 flex-col min-h-0">
       <div className="flex items-center h-16 px-4 bg-gray-900">
-        <h1 className="text-xl font-semibold text-white">DevMastery Admin</h1>
+        <Link
+          href="/"
+          className="text-xl font-semibold text-white hover:text-gray-200 transition-colors"
+        >
+          DevMastery Admin
+        </Link>
       </div>
       <nav className="flex-1 px-2 py-4 space-y-1">
+        {" "}
         {navigation.map((item) => {
           const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+            pathname === item.href ||
+            (pathname && pathname.startsWith(item.href + "/"));
           return (
             <Link
               key={item.name}
