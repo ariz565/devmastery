@@ -26,6 +26,7 @@ model User {
   notes           Note[]
   leetcodeProblems LeetcodeProblem[]
   interviewNotes  InterviewNote[]
+  interviewResources InterviewResource[]
   topics          Topic[]
   subTopics       SubTopic[]
   
@@ -37,6 +38,7 @@ model User {
   chatMessages    ChatMessage[]
   sharedFiles     SharedFile[]
   studyNotes      StudyNote[]
+  comments        Comment[]
 
   @@map("users")
 }
@@ -215,6 +217,64 @@ model InterviewNote {
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@map("interview_notes")
+}
+
+model InterviewResource {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String   // 'coding-question', 'study-guide', 'link', 'document', 'video', 'excel', 'image'
+  category    String
+  difficulty  String   // 'easy', 'medium', 'hard'
+  tags        String[]
+  url         String?
+  fileUrl     String?
+  fileName    String?
+  fileSize    Int?
+  content     String?  // For coding questions or detailed content
+  views       Int      @default(0)
+  downloads   Int      @default(0)
+  rating      Float    @default(0)
+  isPremium   Boolean  @default(false)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  comments Comment[]
+
+  @@map("interview_resources")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  isEdited  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Author information
+  authorId   String?
+  author     User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorName String? // For anonymous comments
+  authorEmail String? // For anonymous comments
+
+  // Resource reference
+  interviewResourceId String
+  interviewResource   InterviewResource @relation(fields: [interviewResourceId], references: [id], onDelete: Cascade)
+
+  // Threading support
+  parentId String?
+  parent   Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  // Engagement
+  likes    Int @default(0)
+  dislikes Int @default(0)
+
+  @@map("comments")
 }
 
 enum Role {

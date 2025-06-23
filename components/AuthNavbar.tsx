@@ -1,7 +1,7 @@
 import { useUser, UserButton, SignInButton } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Settings, User, LogIn, BookOpen, FileText, Code, FolderTree } from "lucide-react";
+import { Settings, User, LogIn, BookOpen, FileText, Code, FolderTree, Target } from "lucide-react";
 
 export default function AuthNavbar() {
   const { user, isLoaded } = useUser();
@@ -38,13 +38,19 @@ export default function AuthNavbar() {
         >
           <FileText className="w-4 h-4 mr-2" />
           Notes
-        </Link>
-        <Link
+        </Link>        <Link
           href="/leetcode"
           className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         >
           <Code className="w-4 h-4 mr-2" />
           LeetCode
+        </Link>
+        <Link
+          href="/interviews"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        >
+          <Target className="w-4 h-4 mr-2" />
+          Interviews
         </Link>
       </div>
 

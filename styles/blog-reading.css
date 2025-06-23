@@ -336,6 +336,100 @@
   color: #e5e7eb !important;
 }
 
+/* Interview Content Dark Theme Styling */
+.interview-content-dark {
+  background-color: #1a1a1a;
+  color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #374151;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.interview-content-dark strong {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.interview-content-dark em {
+  color: #a78bfa;
+  font-style: italic;
+}
+
+.interview-content-dark code {
+  background: #374151;
+  color: #10b981;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.interview-content-dark h1 {
+  color: #60a5fa;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.interview-content-dark h2 {
+  color: #34d399;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.75rem 0;
+}
+
+.interview-content-dark h3 {
+  color: #fbbf24;
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.interview-content-dark pre {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  color: #e5e7eb;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.interview-content-dark a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.interview-content-dark a:hover {
+  color: #93c5fd;
+}
+
+.interview-content-dark ul,
+.interview-content-dark ol {
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+}
+
+.interview-content-dark li {
+  color: #d1d5db;
+  margin: 0.25rem 0;
+}
+
+.interview-content-dark blockquote {
+  border-left: 4px solid #60a5fa;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #e5e7eb;
+  font-style: italic;
+}
+
 /* Responsive font scaling */
 @media (max-width: 768px) {
   .blog-content h1 {

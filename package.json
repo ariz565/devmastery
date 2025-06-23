@@ -50,13 +50,18 @@
     "nextra-theme-docs": "^2.13.4",
     "node-fetch": "^2.7.0",
     "openai": "^5.6.0",
+    "pdf-parse": "^1.1.1",
+    "quill": "^2.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.2",
     "react-markdown": "^10.1.0",
+    "react-quill": "^2.0.0",
     "react-syntax-highlighter": "^15.6.1",
+    "react-youtube": "^10.1.0",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "youtube-parser": "^1.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
