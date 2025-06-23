@@ -1,0 +1,6 @@
+{
+  "name": "seed-problems",
+  "scripts": {
+    "seed-leetcode": "node scripts/seed-leetcode-problems.js"
+  }
+}

@@ -26,12 +26,15 @@ export default async function handler(
     if (!dbUser) {
       return res.status(404).json({ message: "User not found" });
     }
-
     if (req.method === "GET") {
       const problem = await prisma.leetcodeProblem.findFirst({
         where: {
           id: id,
           authorId: dbUser.id,
+        },
+        include: {
+          solutions: true,
+          resources: true,
         },
       });
 
@@ -41,34 +44,112 @@ export default async function handler(
 
       return res.status(200).json(problem);
     }
-
     if (req.method === "PUT") {
-      const { title, difficulty, description, solution, explanation, tags } =
-        req.body;
+      const {
+        title,
+        difficulty,
+        description,
+        category,
+        tags,
+        companies,
+        hints,
+        followUp,
+        leetcodeUrl,
+        problemNumber,
+        frequency,
+        acceptance,
+        isPremium,
+        timeComplex,
+        spaceComplex,
+        topicId,
+        subTopicId,
+        solutions,
+        resources,
+      } = req.body;
 
-      if (!title || !difficulty || !description || !solution) {
+      if (!title || !difficulty || !description) {
         return res.status(400).json({
-          message: "Title, difficulty, description, and solution are required",
+          message: "Title, difficulty, and description are required",
         });
       }
 
+      // First update the problem
       const problem = await prisma.leetcodeProblem.update({
         where: { id: id },
         data: {
           title,
           difficulty,
           description,
-          solution,
-          explanation: explanation || "",
+          category: category || "DSA",
           tags: tags || [],
+          companies: companies || [],
+          hints: hints || [],
+          followUp: followUp || "",
+          leetcodeUrl: leetcodeUrl || "",
+          problemNumber: problemNumber || null,
+          frequency: frequency || "",
+          acceptance: acceptance || null,
+          isPremium: isPremium || false,
+          timeComplex: timeComplex || "",
+          spaceComplex: spaceComplex || "",
+          topicId: topicId || null,
+          subTopicId: subTopicId || null,
           updatedAt: new Date(),
         },
       });
 
-      return res.status(200).json(problem);
-    }
+      // Delete existing solutions and resources
+      await prisma.problemSolution.deleteMany({
+        where: { problemId: id },
+      });
+      await prisma.problemResource.deleteMany({
+        where: { problemId: id },
+      });
 
+      // Create new solutions
+      if (solutions && solutions.length > 0) {
+        await prisma.problemSolution.createMany({
+          data: solutions.map((solution: any) => ({
+            problemId: id,
+            language: solution.language,
+            code: solution.code,
+            approach: solution.approach || "",
+            explanation: solution.explanation || "",
+            timeComplex: solution.timeComplex || "",
+            spaceComplex: solution.spaceComplex || "",
+            notes: solution.notes || "",
+            isOptimal: solution.isOptimal || false,
+          })),
+        });
+      }
+
+      // Create new resources
+      if (resources && resources.length > 0) {
+        await prisma.problemResource.createMany({
+          data: resources.map((resource: any) => ({
+            problemId: id,
+            title: resource.title,
+            type: resource.type,
+            url: resource.url || "",
+            filePath: resource.filePath || "",
+            description: resource.description || "",
+          })),
+        });
+      }
+
+      // Fetch the updated problem with relations
+      const updatedProblem = await prisma.leetcodeProblem.findUnique({
+        where: { id: id },
+        include: {
+          solutions: true,
+          resources: true,
+        },
+      });
+
+      return res.status(200).json(updatedProblem);
+    }
     if (req.method === "DELETE") {
+      // Delete the problem (solutions and resources will be deleted via cascade)
       await prisma.leetcodeProblem.delete({
         where: {
           id: id,

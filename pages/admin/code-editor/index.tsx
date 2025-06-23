@@ -21,15 +21,76 @@ interface CodeSnippet {
 export default function CodeEditor() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
-  const [code, setCode] = useState(
-    '// Welcome to the Code Editor\nconsole.log("Hello, World!");'
-  );
+  const [code, setCode] = useState(getDefaultCode("javascript"));
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [input, setInput] = useState("");
   const [savedSnippets, setSavedSnippets] = useState<CodeSnippet[]>([]);
   const [snippetTitle, setSnippetTitle] = useState("");
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [executionTime, setExecutionTime] = useState<number | null>(null);
+  function getDefaultCode(lang: string): string {
+    switch (lang) {
+      case "javascript":
+        return `// Welcome to the JavaScript Code Editor
+console.log("Hello, World!");
+
+// Try some calculations
+const sum = 5 + 3;
+console.log("5 + 3 =", sum);
+
+// Work with arrays
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map(n => n * 2);
+console.log("Doubled numbers:", doubled);`;
+      case "python":
+        return `# Welcome to the Python Code Editor
+print("Hello, World!")
+
+# Try some calculations
+sum_result = 5 + 3
+print(f"5 + 3 = {sum_result}")
+
+# Work with lists
+numbers = [1, 2, 3, 4, 5]
+doubled = [n * 2 for n in numbers]
+print("Doubled numbers:", doubled)
+
+# Read input (uncomment to test)
+# name = input("Enter your name: ")
+# print(f"Hello, {name}!")`;
+      case "java":
+        return `import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        
+        // Try some calculations
+        int sum = 5 + 3;
+        System.out.println("5 + 3 = " + sum);
+        
+        // Work with arrays
+        int[] numbers = {1, 2, 3, 4, 5};
+        System.out.print("Original numbers: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+        
+        // Read input (uncomment to test)
+        // Scanner scanner = new Scanner(System.in);
+        // System.out.print("Enter your name: ");
+        // String name = scanner.nextLine();
+        // System.out.println("Hello, " + name + "!");
+        // scanner.close();
+    }
+}`;
+      default:
+        return '// Welcome to the Code Editor\nconsole.log("Hello, World!");';
+    }
+  }
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -51,46 +112,54 @@ export default function CodeEditor() {
       console.error("Error loading snippets:", error);
     }
   };
-
   const runCode = async () => {
+    // Check if language is supported
+    if (
+      language !== "javascript" &&
+      language !== "python" &&
+      language !== "java"
+    ) {
+      setOutput(
+        `Error: ${language} execution is not supported yet. Only JavaScript, Python, and Java are currently supported.`
+      );
+      return;
+    }
+
     setIsRunning(true);
     setOutput("Running...");
+    setExecutionTime(null);
 
     try {
-      // For now, we'll simulate code execution
-      // In a real implementation, you'd send this to a backend service
-      if (language === "javascript") {
-        try {
-          // Create a safe execution context
-          const logs: string[] = [];
-          const mockConsole = {
-            log: (...args: any[]) => logs.push(args.join(" ")),
-            error: (...args: any[]) => logs.push("Error: " + args.join(" ")),
-            warn: (...args: any[]) => logs.push("Warning: " + args.join(" ")),
-          };
+      const response = await fetch("/api/admin/execute-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code,
+          language,
+          input,
+        }),
+      });
 
-          // Create a function with the user's code
-          const func = new Function("console", code);
-          func(mockConsole);
+      const result = await response.json();
 
-          setOutput(
-            logs.length > 0
-              ? logs.join("\n")
-              : "Code executed successfully (no output)"
-          );
-        } catch (error) {
-          setOutput(
-            `Error: ${error instanceof Error ? error.message : "Unknown error"}`
-          );
+      if (response.ok) {
+        let outputText =
+          result.output || "Code executed successfully (no output)";
+        if (result.error) {
+          outputText += "\n\nError:\n" + result.error;
         }
+        setOutput(outputText);
+        setExecutionTime(result.executionTime);
       } else {
-        setOutput(
-          `Code execution for ${language} is not implemented in this demo.\nCode would be:\n${code}`
-        );
+        setOutput(`Error: ${result.error || "Failed to execute code"}`);
       }
     } catch (error) {
       setOutput(
-        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+        `Network Error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     } finally {
       setIsRunning(false);
@@ -129,11 +198,12 @@ export default function CodeEditor() {
       toast.error("Failed to save snippet");
     }
   };
-
   const loadSnippet = (snippet: CodeSnippet) => {
     setCode(snippet.code);
     setLanguage(snippet.language);
     setOutput("");
+    setInput("");
+    setExecutionTime(null);
     toast.success(`Loaded snippet: ${snippet.title}`);
   };
 
@@ -196,10 +266,12 @@ export default function CodeEditor() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {" "}
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Code Editor</h1>
             <p className="text-gray-600 mt-1">
-              Write, test, and save code snippets
+              Write, test, and save code snippets • Supports JavaScript, Python,
+              and Java execution
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -217,14 +289,35 @@ export default function CodeEditor() {
             >
               <Save className="w-4 h-4 mr-2" />
               Save
-            </button>
+            </button>{" "}
             <button
               onClick={runCode}
               disabled={isRunning}
-              className="inline-flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isRunning
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : language === "javascript" ||
+                    language === "python" ||
+                    language === "java"
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-400 text-white cursor-not-allowed"
+              }`}
+              title={
+                language === "javascript" ||
+                language === "python" ||
+                language === "java"
+                  ? `Execute ${language} code`
+                  : `${language} execution not supported yet`
+              }
             >
               <Play className="w-4 h-4 mr-2" />
-              {isRunning ? "Running..." : "Run"}
+              {isRunning
+                ? "Running..."
+                : language === "javascript" ||
+                  language === "python" ||
+                  language === "java"
+                ? "Run Code"
+                : "Not Supported"}
             </button>
           </div>
         </div>
@@ -270,11 +363,18 @@ export default function CodeEditor() {
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     Language
-                  </label>
+                  </label>{" "}
                   <select
                     id="language"
                     value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
+                    onChange={(e) => {
+                      const newLang = e.target.value;
+                      setLanguage(newLang);
+                      setCode(getDefaultCode(newLang));
+                      setOutput("");
+                      setInput("");
+                      setExecutionTime(null);
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {languages.map((lang) => (
@@ -286,7 +386,6 @@ export default function CodeEditor() {
                 </div>
               </div>
             </div>
-
             {/* Editor */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="h-96">
@@ -306,15 +405,38 @@ export default function CodeEditor() {
                   }}
                 />
               </div>
-            </div>
-
+            </div>{" "}
+            {/* Input Section */}
+            {(language === "python" || language === "java") && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Input</h3>
+                  <p className="text-sm text-gray-500">
+                    Provide input for your program (if needed)
+                  </p>
+                </div>
+                <div className="p-4">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    className="w-full h-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                    placeholder="Enter input for your program..."
+                  />
+                </div>
+              </div>
+            )}
             {/* Output */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-4 py-3 border-b border-gray-200">
+              <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Output</h3>
+                {executionTime !== null && (
+                  <span className="text-sm text-gray-500">
+                    Executed in {executionTime}ms
+                  </span>
+                )}
               </div>
               <div className="p-4">
-                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto min-h-[100px]">
+                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto min-h-[100px] whitespace-pre-wrap">
                   {output || 'Click "Run" to execute your code...'}
                 </pre>
               </div>

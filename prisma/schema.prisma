@@ -29,6 +29,7 @@ model User {
   interviewResources InterviewResource[]
   topics          Topic[]
   subTopics       SubTopic[]
+  resourceCollections ResourceCollection[]
   
   // Study Room relationships
   ownedStudyRooms StudyRoom[] @relation("RoomOwner")
@@ -185,6 +186,15 @@ model LeetcodeProblem {
   explanation String?
   timeComplex String?
   spaceComplex String?
+  leetcodeUrl String?
+  problemNumber Int?
+  hints       String[]
+  followUp    String?
+  companies   String[]
+  frequency   String?
+  acceptance  Float?
+  isPremium   Boolean @default(false)
+  category    String @default("DSA")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -197,9 +207,111 @@ model LeetcodeProblem {
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   
+  solutions ProblemSolution[]
+  resources ProblemResource[]
   tableOfContents TableOfContents[]
 
   @@map("leetcode_problems")
+}
+
+model ProblemSolution {
+  id          String @id @default(cuid())
+  language    String
+  code        String
+  approach    String
+  timeComplex String?
+  spaceComplex String?
+  explanation String?
+  notes       String?
+  isOptimal   Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  problemId String
+  problem   LeetcodeProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@map("problem_solutions")
+}
+
+model ProblemResource {
+  id          String @id @default(cuid())
+  title       String
+  type        ResourceType
+  url         String?
+  filePath    String?
+  description String?
+  createdAt   DateTime @default(now())
+
+  problemId String
+  problem   LeetcodeProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@map("problem_resources")
+}
+
+model ResourceCollection {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  isPublic    Boolean @default(false)
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  authorId String
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  items ResourceCollectionItem[]
+
+  @@map("resource_collections")
+}
+
+model ResourceCollectionItem {
+  id          String @id @default(cuid())
+  title       String
+  type        ResourceType
+  url         String?
+  filePath    String?
+  description String?
+  order       Int @default(0)
+  createdAt   DateTime @default(now())
+
+  collectionId String
+  collection   ResourceCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@map("resource_collection_items")
+}
+
+enum ResourceType {
+  ARTICLE
+  VIDEO
+  PDF
+  IMAGE
+  CODE
+  WEBSITE
+  BOOK
+  COURSE
+}
+
+enum ProgrammingLanguage {
+  JAVASCRIPT
+  TYPESCRIPT
+  PYTHON
+  JAVA
+  CPP
+  C
+  CSHARP
+  GO
+  RUST
+  SWIFT
+  KOTLIN
+  PHP
+  RUBY
+  SCALA
+  DART
+  R
+  MATLAB
+  SQL
 }
 
 model InterviewNote {

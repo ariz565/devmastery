@@ -9,6 +9,7 @@
     "start": "next start",
     "migrate-content": "node scripts/migrate-content.js",
     "create-topics": "node scripts/create-topics.js",
+    "seed-leetcode": "node scripts/seed-leetcode-problems.js",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "node prisma/seed.ts"

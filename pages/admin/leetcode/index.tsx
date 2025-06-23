@@ -2,28 +2,110 @@ import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import AdminLayout from "../../../components/admin/AdminLayout";
-import { Plus, Search, Code, Edit, Trash2, ExternalLink } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Code,
+  Edit,
+  Trash2,
+  ExternalLink,
+  Download,
+  Upload,
+  Filter,
+  BookOpen,
+  Target,
+  Award,
+  TrendingUp,
+  FileText,
+  Eye,
+  Copy,
+  ChevronUp,
+  ChevronDown,
+  GripVertical,
+  Clock,
+  Zap,
+  Building,
+  Tag,
+  Star,
+  Link,
+  MoreVertical,
+  Calendar,
+  Hash,
+  Users,
+  Globe,
+} from "lucide-react";
 import toast from "react-hot-toast";
+
+interface ProblemSolution {
+  id: string;
+  language: string;
+  code: string;
+  approach: string;
+  timeComplex?: string;
+  spaceComplex?: string;
+  explanation?: string;
+  notes?: string;
+  isOptimal: boolean;
+}
+
+interface ProblemResource {
+  id: string;
+  title: string;
+  type: string;
+  url?: string;
+  filePath?: string;
+  description?: string;
+}
 
 interface LeetcodeProblem {
   id: string;
   title: string;
-  difficulty: "EASY" | "MEDIUM" | "HARD";
   description: string;
-  solution: string;
-  explanation: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  category: string;
   tags: string[];
+  companies: string[];
+  hints: string[];
+  followUp?: string;
+  leetcodeUrl?: string;
+  problemNumber?: number;
+  frequency?: string;
+  acceptance?: number;
+  isPremium: boolean;
+  timeComplex?: string;
+  spaceComplex?: string;
+  solutions: ProblemSolution[];
+  resources: ProblemResource[];
+  topic?: { id: string; name: string };
+  subTopic?: { id: string; name: string };
   createdAt: string;
   updatedAt: string;
+  order?: number;
 }
 
-export default function LeetcodeManagement() {
+interface ProblemStats {
+  total: number;
+  EASY?: number;
+  MEDIUM?: number;
+  HARD?: number;
+}
+
+export default function LeetCodeProblems() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [problems, setProblems] = useState<LeetcodeProblem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedLanguage, setSelectedLanguage] = useState("all");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [stats, setStats] = useState<ProblemStats>({ total: 0 });
+  const [showFilters, setShowFilters] = useState(false);
+
+  const pageSize = 20;
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -32,20 +114,78 @@ export default function LeetcodeManagement() {
       return;
     }
     fetchProblems();
-  }, [user, isLoaded, router]);
+  }, [
+    user,
+    isLoaded,
+    router,
+    searchTerm,
+    selectedDifficulty,
+    selectedCategory,
+    selectedLanguage,
+    sortBy,
+    sortOrder,
+    currentPage,
+  ]);
 
   const fetchProblems = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("/api/admin/leetcode");
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+        search: searchTerm,
+        difficulty: selectedDifficulty,
+        category: selectedCategory,
+        language: selectedLanguage,
+        sortBy,
+        sortOrder,
+      });
+
+      const response = await fetch(`/api/admin/leetcode?${params}`);
       if (response.ok) {
         const data = await response.json();
         setProblems(data.problems || []);
+        setStats(data.stats || { total: 0 });
       }
     } catch (error) {
       console.error("Error fetching problems:", error);
       toast.error("Failed to load problems");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const moveProblem = async (problemId: string, direction: "up" | "down") => {
+    const currentIndex = problems.findIndex((p) => p.id === problemId);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= problems.length) return;
+
+    // Optimistic update
+    const newProblems = [...problems];
+    [newProblems[currentIndex], newProblems[newIndex]] = [
+      newProblems[newIndex],
+      newProblems[currentIndex],
+    ];
+    setProblems(newProblems);
+
+    try {
+      // Update order in backend
+      await fetch(`/api/admin/leetcode/reorder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          problemId,
+          direction,
+          newOrder: newIndex,
+        }),
+      });
+      toast.success("Problem order updated");
+    } catch (error) {
+      // Revert on error
+      setProblems(problems);
+      toast.error("Failed to update order");
     }
   };
 
@@ -58,7 +198,7 @@ export default function LeetcodeManagement() {
       });
 
       if (response.ok) {
-        setProblems(problems.filter((problem) => problem.id !== id));
+        setProblems(problems.filter((p) => p.id !== id));
         toast.success("Problem deleted successfully");
       } else {
         toast.error("Failed to delete problem");
@@ -68,181 +208,485 @@ export default function LeetcodeManagement() {
       toast.error("Failed to delete problem");
     }
   };
-  const filteredProblems = problems.filter((problem) => {
-    const matchesSearch =
-      problem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      problem.solution.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDifficulty =
-      selectedDifficulty === "all" || problem.difficulty === selectedDifficulty;
-    return matchesSearch && matchesDifficulty;
-  });
-
-  const difficulties = ["all", "EASY", "MEDIUM", "HARD"];
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "EASY":
-        return "bg-green-100 text-green-800";
+        return "text-green-600 bg-green-100";
       case "MEDIUM":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-yellow-600 bg-yellow-100";
       case "HARD":
-        return "bg-red-100 text-red-800";
+        return "text-red-600 bg-red-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "text-gray-600 bg-gray-100";
     }
   };
 
-  if (!isLoaded || loading) {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const truncateText = (text: string, maxLength: number) => {
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
+  };
+
+  if (!isLoaded) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </AdminLayout>
     );
   }
 
+  if (!user) {
+    router.push("/admin/auth");
+    return null;
+  }
+
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="max-w-full mx-auto px-6 py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              LeetCode Problems
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Manage your solved LeetCode problems
-            </p>
-          </div>
-          <button
-            onClick={() => router.push("/admin/leetcode/create")}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Problem
-          </button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search problems..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>{" "}
-          <select
-            value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            aria-label="Filter by difficulty"
-          >
-            {difficulties.map((difficulty) => (
-              <option key={difficulty} value={difficulty}>
-                {difficulty === "all" ? "All Difficulties" : difficulty}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Problems Grid */}
-        {filteredProblems.length === 0 ? (
-          <div className="text-center py-12">
-            <Code className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No problems found
-            </h3>{" "}
-            <p className="text-gray-600 mb-4">
-              {searchTerm || selectedDifficulty !== "all"
-                ? "Try adjusting your search or filter criteria"
-                : "Get started by adding your first solved problem"}
-            </p>
-            {!searchTerm && selectedDifficulty === "all" && (
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                LeetCode Problems
+              </h1>
+              <p className="text-gray-600">
+                Comprehensive resource management for software engineers
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0 flex space-x-3">
+              <button
+                onClick={() => router.push("/admin/leetcode/bulk-import")}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Bulk Import
+              </button>
+              <button
+                onClick={() =>
+                  window.open("/api/admin/leetcode/export?format=csv", "_blank")
+                }
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </button>
               <button
                 onClick={() => router.push("/admin/leetcode/create")}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Problem
               </button>
-            )}
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProblems.map((problem) => (
-              <div
-                key={problem.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 truncate pr-2">
-                    {problem.title}
-                  </h3>{" "}
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() =>
-                        router.push(`/admin/leetcode/edit/${problem.id}`)
-                      }
-                      className="text-gray-400 hover:text-blue-600 transition-colors"
-                      title="Edit problem"
-                      aria-label={`Edit problem ${problem.title}`}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteProblem(problem.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
-                      title="Delete problem"
-                      aria-label={`Delete problem ${problem.title}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(
-                      problem.difficulty
-                    )}`}
-                  >
-                    {problem.difficulty}
-                  </span>
-                </div>
+        </div>
 
-                <p className="text-gray-600 text-sm mb-3 line-clamp-3">
-                  {problem.solution.substring(0, 100)}...
-                </p>
-
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>
-                    {new Date(problem.createdAt).toLocaleDateString()}
-                  </span>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Target className="h-6 w-6 text-gray-400" />
                 </div>
-
-                {problem.tags && problem.tags.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {problem.tags.slice(0, 3).map((tag, index) => (
-                      <span
-                        key={index}
-                        className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {problem.tags.length > 3 && (
-                      <span className="text-gray-500 text-xs">
-                        +{problem.tags.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                )}
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Total Problems
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {stats.total || 0}
+                    </dd>
+                  </dl>
+                </div>
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Award className="h-6 w-6 text-green-400" />
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Easy
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {stats.EASY || 0}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <TrendingUp className="h-6 w-6 text-yellow-400" />
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Medium
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {stats.MEDIUM || 0}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Target className="h-6 w-6 text-red-400" />
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Hard
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {stats.HARD || 0}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white shadow rounded-lg mb-6">
+          <div className="px-6 py-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              <div className="flex-1 max-w-lg">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Search problems..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <select
+                  value={selectedDifficulty}
+                  onChange={(e) => setSelectedDifficulty(e.target.value)}
+                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                >
+                  <option value="all">All Difficulties</option>
+                  <option value="EASY">Easy</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HARD">Hard</option>
+                </select>
+
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="Array">Array</option>
+                  <option value="String">String</option>
+                  <option value="Math">Math</option>
+                  <option value="DSA">DSA</option>
+                </select>
+
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <Filter className="h-4 w-4 mr-1" />
+                  Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Problems List */}
+        <div className="bg-white shadow overflow-hidden sm:rounded-md">
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : problems.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                No problems
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating a new problem.
+              </p>
+              <div className="mt-6">
+                <button
+                  onClick={() => router.push("/admin/leetcode/create")}
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Problem
+                </button>
+              </div>
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {problems.map((problem, index) => (
+                <li
+                  key={problem.id}
+                  className="hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <div className="px-6 py-6 border-l-4 border-transparent hover:border-blue-500 transition-all duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center flex-1 min-w-0">
+                        {" "}
+                        {/* Drag Handle & Order Controls */}
+                        <div className="flex flex-col items-center mr-6 bg-gray-50 rounded-lg p-2">
+                          <button
+                            onClick={() => moveProblem(problem.id, "up")}
+                            disabled={index === 0}
+                            className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-white rounded transition-all duration-200"
+                            title="Move up"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                          <GripVertical className="w-4 h-4 text-gray-400 my-1" />
+                          <button
+                            onClick={() => moveProblem(problem.id, "down")}
+                            disabled={index === problems.length - 1}
+                            className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-300 disabled:cursor-not-allowed hover:bg-white rounded transition-all duration-200"
+                            title="Move down"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                        </div>
+                        {/* Problem Info */}
+                        <div className="flex-1 min-w-0">
+                          {/* Title Row with Number and Premium */}
+                          <div className="flex items-center mb-2">
+                            {/* Problem Number - Bold and larger */}
+                            {problem.problemNumber && (
+                              <span className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold bg-slate-800 text-white mr-3 min-w-[60px] justify-center">
+                                #{problem.problemNumber}
+                              </span>
+                            )}
+
+                            {/* Title - Bold */}
+                            <h3 className="text-xl font-bold text-gray-900 truncate flex-1">
+                              {problem.title}
+                            </h3>
+
+                            {/* Premium Badge */}
+                            {problem.isPremium && (
+                              <div className="flex items-center ml-3 px-2 py-1 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full">
+                                <Star className="w-3 h-3 text-white mr-1" />
+                                <span className="text-xs font-semibold text-white">
+                                  Premium
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Difficulty */}
+                            <span
+                              className={`ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getDifficultyColor(
+                                problem.difficulty
+                              )}`}
+                            >
+                              {problem.difficulty.toLowerCase()}
+                            </span>
+                          </div>
+                          {/* Description - Italic */}
+                          <p className="text-sm text-gray-600 italic leading-relaxed mb-3">
+                            {truncateText(problem.description, 150)}
+                          </p>
+                          {/* Meta Information - Dark background */}
+                          <div className="bg-slate-800 rounded-lg px-3 py-2 mb-2">
+                            <div className="flex items-center text-xs text-gray-300 space-x-4 flex-wrap">
+                              {/* Category */}
+                              <div className="flex items-center">
+                                <Code className="w-3 h-3 mr-1" />
+                                <span className="font-medium">
+                                  {problem.category}
+                                </span>
+                              </div>
+
+                              {/* Solutions Count */}
+                              <div className="flex items-center">
+                                <FileText className="w-3 h-3 mr-1" />
+                                <span>
+                                  {problem.solutions?.length || 0} solutions
+                                </span>
+                              </div>
+
+                              {/* Companies */}
+                              {problem.companies?.length > 0 && (
+                                <div className="flex items-center">
+                                  <Building className="w-3 h-3 mr-1" />
+                                  <span>
+                                    {problem.companies.slice(0, 2).join(", ")}
+                                    {problem.companies.length > 2 &&
+                                      ` +${problem.companies.length - 2} more`}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Acceptance Rate */}
+                              {problem.acceptance && (
+                                <div className="flex items-center">
+                                  <TrendingUp className="w-3 h-3 mr-1" />
+                                  <span>{problem.acceptance}% accepted</span>
+                                </div>
+                              )}
+
+                              {/* Created Date */}
+                              <div className="flex items-center">
+                                <Calendar className="w-3 h-3 mr-1" />
+                                <span>{formatDate(problem.createdAt)}</span>
+                              </div>
+                            </div>
+                          </div>{" "}
+                          {/* Tags */}
+                          {problem.tags?.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {problem.tags.slice(0, 4).map((tag, tagIndex) => (
+                                <span
+                                  key={tagIndex}
+                                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                                >
+                                  #{tag}
+                                </span>
+                              ))}
+                              {problem.tags.length > 4 && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200">
+                                  +{problem.tags.length - 4} more tags
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>{" "}
+                      {/* Action Buttons */}
+                      <div className="flex items-center space-x-1 ml-4">
+                        {problem.leetcodeUrl && (
+                          <button
+                            onClick={() =>
+                              window.open(problem.leetcodeUrl, "_blank")
+                            }
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                            title="Open LeetCode"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() =>
+                            router.push(`/admin/leetcode/edit/${problem.id}`)
+                          }
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => deleteProblem(problem.id)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {problems.length > 0 && (
+          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={problems.length < pageSize}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                Next
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing{" "}
+                  <span className="font-medium">
+                    {(currentPage - 1) * pageSize + 1}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-medium">
+                    {Math.min(currentPage * pageSize, stats.total)}
+                  </span>{" "}
+                  of <span className="font-medium">{stats.total}</span> results
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+                    Previous
+                  </button>
+                  <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    Page {currentPage}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={problems.length < pageSize}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+                    Next
+                  </button>
+                </nav>
+              </div>
+            </div>
           </div>
         )}
       </div>

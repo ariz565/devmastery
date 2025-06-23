@@ -19,7 +19,6 @@ import {
   ChevronDown,
   Calendar,
   User,
-  Upload,
 } from "lucide-react";
 
 interface InterviewResource {
@@ -166,17 +165,8 @@ export default function InterviewsPage() {
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
                 Master your technical interviews with our comprehensive
                 collection of coding questions, study guides, and preparation
-                materials from industry experts.
+                materials from industry experts.{" "}
               </p>
-            </div>
-            <div className="absolute top-8 right-8">
-              <Link
-                href="/interviews/upload"
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Resource
-              </Link>
             </div>
           </div>
         </div>

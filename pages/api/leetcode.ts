@@ -16,9 +16,7 @@ export default async function handler(
         where.subTopic = { slug: subTopicSlug };
       } else if (topicSlug) {
         where.topic = { slug: topicSlug };
-      }
-
-      // Get all leetcode problems for public access
+      } // Get all leetcode problems for public access
       const problems = await prisma.leetcodeProblem.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -28,28 +26,29 @@ export default async function handler(
           description: true,
           difficulty: true,
           tags: true,
-          solution: true,
-          explanation: true,
-          timeComplex: true,
-          spaceComplex: true,
+          hints: true,
+          followUp: true,
+          companies: true,
+          frequency: true,
+          acceptance: true,
+          isPremium: true,
+          category: true,
+          leetcodeUrl: true,
+          problemNumber: true,
           createdAt: true,
           author: {
             select: {
               name: true,
             },
           },
-          topic: {
-            select: {
-              name: true,
-              slug: true,
-              icon: true,
+          solutions: {
+            orderBy: {
+              isOptimal: "desc",
             },
           },
-          subTopic: {
-            select: {
-              name: true,
-              slug: true,
-              icon: true,
+          resources: {
+            orderBy: {
+              createdAt: "asc",
             },
           },
         },
