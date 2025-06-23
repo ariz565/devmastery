@@ -13,6 +13,13 @@ interface Note {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  author: {
+    name: string;
+    email: string;
+  } | null;
+  topic: {
+    name: string;
+  } | null;
 }
 
 export default function NotesManagement() {
@@ -208,18 +215,23 @@ export default function NotesManagement() {
                     </button>
                   </div>
                 </div>
-
                 <p className="text-gray-600 text-sm mb-3 line-clamp-3">
                   {note.content.substring(0, 100)}...
-                </p>
-
+                </p>{" "}
                 <div className="flex items-center justify-between text-sm text-gray-500">
                   <span className="bg-gray-100 px-2 py-1 rounded text-xs">
                     {note.category}
                   </span>
                   <span>{new Date(note.createdAt).toLocaleDateString()}</span>
                 </div>
-
+                <div className="mt-2 text-xs text-gray-500">
+                  by {note.author?.name || note.author?.email || "Unknown"}
+                  {note.topic && (
+                    <span className="ml-2 text-blue-600">
+                      • {note.topic.name}
+                    </span>
+                  )}
+                </div>
                 {note.tags && note.tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1">
                     {note.tags.slice(0, 3).map((tag, index) => (

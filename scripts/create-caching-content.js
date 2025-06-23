@@ -1,10 +1,11 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const cachingContent = {
   blog: {
     title: "Caching Strategies: Complete Guide to Web Performance Optimization",
-    excerpt: "Master different caching strategies including browser caching, CDN, Redis, and application-level caching to dramatically improve web performance.",
+    excerpt:
+      "Master different caching strategies including browser caching, CDN, Redis, and application-level caching to dramatically improve web performance.",
     content: `# Caching Strategies: Complete Guide to Web Performance Optimization
 
 ## Introduction
@@ -665,19 +666,20 @@ The key is to understand your data access patterns and choose the right caching 
     category: "Performance",
     tags: ["Caching", "Performance", "Redis", "CDN", "Optimization"],
     readTime: 20,
-    published: true
+    published: true,
   },
   note: {
-    title: "Caching Strategies - Quick Reference",      content: `# Caching Strategies - Quick Reference
+    title: "Caching Strategies - Quick Reference",
+    content: `# Caching Strategies - Quick Reference
 
 ## Cache Types
 
 ### 1. Browser Cache
-\\`\\`\\`http
+\`\`\`http
 Cache-Control: public, max-age=3600
 ETag: "686897696a7c876b7e"
 Expires: Wed, 21 Oct 2024 07:28:00 GMT
-\\`\\`\\`
+\`\`\`
 
 ### 2. CDN Cache
 - Geographic distribution
@@ -685,17 +687,17 @@ Expires: Wed, 21 Oct 2024 07:28:00 GMT
 - Global content delivery
 
 ### 3. Server-Side Cache
-\\`\\`\\`javascript
+\`\`\`javascript
 const cache = new NodeCache({ stdTTL: 600 });
 cache.set('key', data, 300);
 const value = cache.get('key');
-\\`\\`\\`
+\`\`\`
 
 ### 4. Redis Cache
-\\`\\`\\`javascript
+\`\`\`javascript
 await client.setex('key', 3600, JSON.stringify(data));
 const cached = await client.get('key');
-\\`\\`\\`
+\`\`\`
 
 ## Caching Strategies
 
@@ -762,27 +764,27 @@ const cached = await client.get('key');
 - **Cloudflare**: CDN caching
 `,
     category: "Performance",
-    tags: ["Caching", "Quick Reference", "Performance"]
-  }
+    tags: ["Caching", "Quick Reference", "Performance"],
+  },
 };
 
 async function createCachingContent() {
   try {
-    console.log('🚀 Creating Caching Strategies Content...');
-    
+    console.log("🚀 Creating Caching Strategies Content...");
+
     const user = await prisma.user.findFirst();
     if (!user) {
-      throw new Error('No users found. Please create a user first.');
+      throw new Error("No users found. Please create a user first.");
     }
 
     // Find the caching subtopic
     const subTopic = await prisma.subTopic.findFirst({
-      where: { slug: 'caching' },
-      include: { topic: true }
+      where: { slug: "caching" },
+      include: { topic: true },
     });
 
     if (!subTopic) {
-      console.log('⚠️ Caching subtopic not found');
+      console.log("⚠️ Caching subtopic not found");
       return;
     }
 
@@ -790,8 +792,8 @@ async function createCachingContent() {
     const existingBlog = await prisma.blog.findFirst({
       where: {
         title: cachingContent.blog.title,
-        authorId: user.id
-      }
+        authorId: user.id,
+      },
     });
 
     if (!existingBlog) {
@@ -800,8 +802,8 @@ async function createCachingContent() {
           ...cachingContent.blog,
           topicId: subTopic.topicId,
           subTopicId: subTopic.id,
-          authorId: user.id
-        }
+          authorId: user.id,
+        },
       });
       console.log(`✅ Created blog: ${cachingContent.blog.title}`);
     } else {
@@ -812,8 +814,8 @@ async function createCachingContent() {
     const existingNote = await prisma.note.findFirst({
       where: {
         title: cachingContent.note.title,
-        authorId: user.id
-      }
+        authorId: user.id,
+      },
     });
 
     if (!existingNote) {
@@ -822,18 +824,17 @@ async function createCachingContent() {
           ...cachingContent.note,
           topicId: subTopic.topicId,
           subTopicId: subTopic.id,
-          authorId: user.id
-        }
+          authorId: user.id,
+        },
       });
       console.log(`✅ Created note: ${cachingContent.note.title}`);
     } else {
       console.log(`⏭️ Note already exists: ${cachingContent.note.title}`);
     }
 
-    console.log('\n✅ Successfully created Caching Strategies content!');
-
+    console.log("\n✅ Successfully created Caching Strategies content!");
   } catch (error) {
-    console.error('❌ Error creating caching content:', error);
+    console.error("❌ Error creating caching content:", error);
   } finally {
     await prisma.$disconnect();
   }

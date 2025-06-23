@@ -6,7 +6,6 @@ const systemDesignContent = {
   blogs: [
     {
       title: "Object-Oriented Design Principles: SOLID Principles Explained",
-      slug: "solid-principles-oop-design",
       content: `# SOLID Principles in Object-Oriented Design
 
 The SOLID principles are five design principles intended to make software designs more understandable, flexible, and maintainable. These principles form the foundation of clean, well-structured object-oriented code.
@@ -269,7 +268,6 @@ Remember: These are guidelines, not rigid rules. Use them judiciously based on y
     },
     {
       title: "Design Patterns: Creational, Structural, and Behavioral Patterns",
-      slug: "design-patterns-comprehensive-guide",
       content: `# Design Patterns: A Comprehensive Guide
 
 Design patterns are reusable solutions to commonly occurring problems in software design. They represent best practices and provide a shared vocabulary for developers.
@@ -660,7 +658,6 @@ Design patterns are powerful tools that help create flexible, maintainable, and 
     },
     {
       title: "High Level System Design: Scalable Architecture Patterns",
-      slug: "scalable-architecture-patterns",
       content: `# Scalable Architecture Patterns for High-Level System Design
 
 Building scalable systems requires understanding various architectural patterns and knowing when to apply them. This guide covers essential patterns for designing large-scale distributed systems.
@@ -1051,7 +1048,6 @@ Remember: There's no one-size-fits-all solution. The best architecture is one th
   notes: [
     {
       title: "System Design Interview Checklist",
-      slug: "system-design-interview-checklist",
       content: `# System Design Interview Checklist
 
 ## 1. Requirements Gathering (5-10 minutes)
@@ -1364,7 +1360,6 @@ Warning Alerts:
     },
     {
       title: "Database Design Fundamentals",
-      slug: "database-design-fundamentals",
       content: `# Database Design Fundamentals
 
 ## 1. Database Design Process
@@ -1876,11 +1871,9 @@ async function createSystemDesignContent() {
     for (const blogData of systemDesignContent.blogs) {
       const subtopicId = blogData.tags.includes("Low Level Design")
         ? lowLevelSubtopic.id
-        : highLevelSubtopic.id;
-
-      // Check if blog already exists
+        : highLevelSubtopic.id; // Check if blog already exists
       const existingBlog = await prisma.blog.findFirst({
-        where: { slug: blogData.slug },
+        where: { title: blogData.title },
       });
       if (existingBlog) {
         console.log(`Blog already exists: ${blogData.title}`);
@@ -1903,7 +1896,7 @@ async function createSystemDesignContent() {
     for (const noteData of systemDesignContent.notes) {
       // Check if note already exists
       const existingNote = await prisma.note.findFirst({
-        where: { slug: noteData.slug },
+        where: { title: noteData.title },
       });
       if (existingNote) {
         console.log(`Note already exists: ${noteData.title}`);

@@ -31,21 +31,72 @@ export default async function handler(
           role: "ADMIN",
         },
       });
-    }
-
-    // Get stats
-    const [blogs, notes, leetcode, interviews] = await Promise.all([
-      prisma.blog.count({ where: { authorId: dbUser.id } }),
-      prisma.note.count({ where: { authorId: dbUser.id } }),
-      prisma.leetcodeProblem.count({ where: { authorId: dbUser.id } }),
-      prisma.interviewNote.count({ where: { authorId: dbUser.id } }),
+    } // Get stats - for admin dashboard, show total counts across all users
+    const [blogs, notes, leetcode, interviews, topics] = await Promise.all([
+      prisma.blog.count(),
+      prisma.note.count(),
+      prisma.leetcodeProblem.count(),
+      prisma.interviewNote.count(),
+      prisma.topic.count(),
     ]);
+
+    // Get recent activity
+    const recentActivity = await Promise.all([
+      // Recent blogs
+      prisma.blog.findMany({
+        take: 3,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          author: { select: { name: true } },
+        },
+      }),
+      // Recent notes
+      prisma.note.findMany({
+        take: 3,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          author: { select: { name: true } },
+        },
+      }),
+      // Recent leetcode problems
+      prisma.leetcodeProblem.findMany({
+        take: 2,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          author: { select: { name: true } },
+        },
+      }),
+    ]); // Combine and sort recent activity
+    const allRecentActivity = [
+      ...recentActivity[0].map((item) => ({ ...item, type: "blog" as const })),
+      ...recentActivity[1].map((item) => ({ ...item, type: "note" as const })),
+      ...recentActivity[2].map((item) => ({
+        ...item,
+        type: "leetcode" as const,
+      })),
+    ]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+      .slice(0, 5); // Take top 5 most recent
 
     res.status(200).json({
       blogs,
       notes,
       leetcode,
       interviews,
+      topics,
+      recentActivity: allRecentActivity,
     });
   } catch (error) {
     console.error("Error fetching stats:", error);

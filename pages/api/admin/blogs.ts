@@ -21,11 +21,8 @@ export default async function handler(
 
       if (!dbUser) {
         return res.status(404).json({ message: "User not found" });
-      }
-
-      // Get blogs
+      } // Get all blogs for admin panel
       const blogs = await prisma.blog.findMany({
-        where: { authorId: dbUser.id },
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
@@ -37,6 +34,12 @@ export default async function handler(
           tags: true,
           coverImage: true,
           readTime: true,
+          author: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
         },
       });
 

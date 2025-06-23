@@ -1,4 +1,5 @@
 import "../styles.css";
+import "../styles/blog-reading.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 

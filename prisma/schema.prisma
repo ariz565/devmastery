@@ -28,6 +28,15 @@ model User {
   interviewNotes  InterviewNote[]
   topics          Topic[]
   subTopics       SubTopic[]
+  
+  // Study Room relationships
+  ownedStudyRooms StudyRoom[] @relation("RoomOwner")
+  studyRoomMembers StudyRoomMember[]
+  sentInvitations StudyRoomInvitation[] @relation("InvitationSender")
+  receivedInvitations StudyRoomInvitation[] @relation("InvitationReceiver")
+  chatMessages    ChatMessage[]
+  sharedFiles     SharedFile[]
+  studyNotes      StudyNote[]
 
   @@map("users")
 }
@@ -55,6 +64,8 @@ model Blog {
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  tableOfContents TableOfContents[]
 
   @@map("blogs")
 }
@@ -77,6 +88,8 @@ model Note {
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  tableOfContents TableOfContents[]
 
   @@map("notes")
 }
@@ -95,6 +108,7 @@ model Topic {
   blogs     Blog[]
   notes     Note[]
   leetcodeProblems LeetcodeProblem[]
+  tableOfContents TableOfContents[]
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -126,6 +140,39 @@ model SubTopic {
   @@map("sub_topics")
 }
 
+model TableOfContents {
+  id                String   @id @default(cuid())
+  title             String
+  slug              String
+  description       String?
+  order             Int      @default(0)
+  level             Int      @default(1) // 1 = main topic, 2 = subtopic, 3 = sub-subtopic
+  parentId          String?
+  parent            TableOfContents? @relation("TOCHierarchy", fields: [parentId], references: [id])
+  children          TableOfContents[] @relation("TOCHierarchy")
+  contentType       String   @default("section") // blog, note, leetcode, section
+  estimatedReadTime Int?     @default(5)
+  difficulty        String   @default("beginner") // beginner, intermediate, advanced
+  isPublished       Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  topicId           String
+  topic             Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  // Optional relations to actual content
+  blogId            String?
+  blog              Blog?    @relation(fields: [blogId], references: [id], onDelete: SetNull)
+  noteId            String?
+  note              Note?    @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  leetcodeId        String?
+  leetcode          LeetcodeProblem? @relation(fields: [leetcodeId], references: [id], onDelete: SetNull)
+
+  @@unique([topicId, slug])
+  @@map("table_of_contents")
+}
+
 model LeetcodeProblem {
   id          String     @id @default(cuid())
   title       String
@@ -147,6 +194,8 @@ model LeetcodeProblem {
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  tableOfContents TableOfContents[]
 
   @@map("leetcode_problems")
 }
@@ -177,4 +226,135 @@ enum Difficulty {
   EASY
   MEDIUM
   HARD
+}
+
+// Study Room Models
+model StudyRoom {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isPrivate   Boolean  @default(false)
+  maxMembers  Int      @default(10)
+  roomCode    String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ownerId String
+  owner   User   @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  members     StudyRoomMember[]
+  invitations StudyRoomInvitation[]
+  messages    ChatMessage[]
+  files       SharedFile[]
+  notes       StudyNote[]
+
+  @@map("study_rooms")
+}
+
+model StudyRoomMember {
+  id       String   @id @default(cuid())
+  role     MemberRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  studyRoomId String
+  studyRoom   StudyRoom @relation(fields: [studyRoomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, studyRoomId])
+  @@map("study_room_members")
+}
+
+model StudyRoomInvitation {
+  id        String           @id @default(cuid())
+  status    InvitationStatus @default(PENDING)
+  message   String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  senderId String
+  sender   User   @relation("InvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User   @relation("InvitationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  studyRoomId String
+  studyRoom   StudyRoom @relation(fields: [studyRoomId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId, studyRoomId])
+  @@map("study_room_invitations")
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  content   String
+  type      MessageType @default(TEXT)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  studyRoomId String
+  studyRoom   StudyRoom @relation(fields: [studyRoomId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+model SharedFile {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  fileSize    Int
+  mimeType    String
+  url         String
+  description String?
+  createdAt   DateTime @default(now())
+
+  uploaderId String
+  uploader   User   @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  studyRoomId String
+  studyRoom   StudyRoom @relation(fields: [studyRoomId], references: [id], onDelete: Cascade)
+
+  @@map("shared_files")
+}
+
+model StudyNote {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  isPublic  Boolean  @default(false)
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  studyRoomId String
+  studyRoom   StudyRoom @relation(fields: [studyRoomId], references: [id], onDelete: Cascade)
+
+  @@map("study_notes")
+}
+
+enum MemberRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum MessageType {
+  TEXT
+  FILE
+  IMAGE
+  SYSTEM
 }

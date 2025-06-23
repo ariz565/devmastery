@@ -13,6 +13,10 @@ interface Blog {
   createdAt: string;
   category: string;
   tags: string[];
+  author: {
+    email: string;
+    name: string;
+  } | null;
 }
 
 export default function BlogsPage() {
@@ -139,15 +143,12 @@ export default function BlogsPage() {
                       {blog.category}
                     </span>
                   </div>
-
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                     {blog.title}
                   </h3>
-
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                     {blog.excerpt}
                   </p>
-
                   <div className="flex flex-wrap gap-1 mb-4">
                     {blog.tags.slice(0, 3).map((tag, index) => (
                       <span
@@ -162,12 +163,13 @@ export default function BlogsPage() {
                         +{blog.tags.length - 3} more
                       </span>
                     )}
-                  </div>
-
+                  </div>{" "}
                   <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                     <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                    <span className="text-xs">
+                      by {blog.author?.name || blog.author?.email || "Unknown"}
+                    </span>
                   </div>
-
                   <div className="flex items-center justify-end space-x-2">
                     <Link
                       href={`/admin/blogs/${blog.id}`}

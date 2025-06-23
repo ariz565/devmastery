@@ -1,0 +1,395 @@
+/* Enhanced Blog Reading Experience Styles */
+
+/* Dynamic font sizing using CSS variables */
+.blog-content {
+  font-size: var(--reading-font-size, 16px);
+}
+
+.blog-content h1 {
+  font-size: calc(var(--reading-font-size, 16px) * 2.5);
+}
+
+.blog-content h2 {
+  font-size: calc(var(--reading-font-size, 16px) * 2);
+}
+
+.blog-content h3 {
+  font-size: calc(var(--reading-font-size, 16px) * 1.75);
+}
+
+.blog-content h4 {
+  font-size: calc(var(--reading-font-size, 16px) * 1.5);
+}
+
+.blog-content h5 {
+  font-size: calc(var(--reading-font-size, 16px) * 1.25);
+}
+
+.blog-content h6 {
+  font-size: calc(var(--reading-font-size, 16px) * 1.1);
+}
+
+.blog-content p {
+  font-size: var(--reading-font-size, 16px);
+  line-height: calc(var(--reading-font-size, 16px) * 1.6);
+}
+
+.blog-content li {
+  font-size: var(--reading-font-size, 16px);
+  line-height: calc(var(--reading-font-size, 16px) * 1.5);
+}
+
+.blog-content code {
+  font-size: calc(var(--reading-font-size, 16px) * 0.9);
+}
+
+.blog-content blockquote {
+  font-size: calc(var(--reading-font-size, 16px) * 1.1);
+  line-height: calc(var(--reading-font-size, 16px) * 1.7);
+}
+
+/* Enhanced reading animations */
+.floating-controls {
+  animation: fadeInRight 0.5s ease-out;
+}
+
+.reading-progress {
+  transition: width 0.1s ease-out;
+}
+
+/* Enhanced Code Block Styling - Fix for black text on black background */
+.blog-content pre {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  overflow-x: auto !important;
+  margin: 1.5rem 0 !important;
+}
+
+.blog-content pre code {
+  background: transparent !important;
+  color: #e5e7eb !important;
+  font-family: "Fira Code", "JetBrains Mono", "Monaco", "Cascadia Code",
+    "Ubuntu Mono", monospace !important;
+  font-size: calc(var(--reading-font-size, 16px) * 0.9) !important;
+  line-height: 1.6 !important;
+}
+
+/* Syntax highlighting fixes for dark code blocks */
+.blog-content pre code .token.comment,
+.blog-content pre code .token.prolog,
+.blog-content pre code .token.doctype,
+.blog-content pre code .token.cdata {
+  color: #8b949e !important;
+}
+
+.blog-content pre code .token.punctuation {
+  color: #e5e7eb !important;
+}
+
+.blog-content pre code .token.property,
+.blog-content pre code .token.tag,
+.blog-content pre code .token.boolean,
+.blog-content pre code .token.number,
+.blog-content pre code .token.constant,
+.blog-content pre code .token.symbol,
+.blog-content pre code .token.deleted {
+  color: #79c0ff !important;
+}
+
+.blog-content pre code .token.selector,
+.blog-content pre code .token.attr-name,
+.blog-content pre code .token.string,
+.blog-content pre code .token.char,
+.blog-content pre code .token.builtin,
+.blog-content pre code .token.inserted {
+  color: #a5d6ff !important;
+}
+
+.blog-content pre code .token.operator,
+.blog-content pre code .token.entity,
+.blog-content pre code .token.url,
+.blog-content pre code .language-css .token.string,
+.blog-content pre code .style .token.string {
+  color: #ff7b72 !important;
+}
+
+.blog-content pre code .token.atrule,
+.blog-content pre code .token.attr-value,
+.blog-content pre code .token.keyword {
+  color: #ff7b72 !important;
+}
+
+.blog-content pre code .token.function,
+.blog-content pre code .token.class-name {
+  color: #d2a8ff !important;
+}
+
+.blog-content pre code .token.regex,
+.blog-content pre code .token.important,
+.blog-content pre code .token.variable {
+  color: #ffa657 !important;
+}
+
+/* Inline code styling */
+.blog-content code:not(pre code) {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 6px !important;
+  font-family: "Fira Code", "JetBrains Mono", "Monaco", "Cascadia Code",
+    "Ubuntu Mono", monospace !important;
+  font-size: calc(var(--reading-font-size, 16px) * 0.9) !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Dark mode inline code */
+.dark .blog-content code:not(pre code) {
+  background-color: #374151 !important;
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
+}
+
+/* Fix for any remaining black text in code blocks */
+.blog-content pre *,
+.blog-content pre code * {
+  color: inherit !important;
+}
+
+/* Ensure minimum contrast for all code elements */
+.blog-content pre code span:not([class*="token"]) {
+  color: #e5e7eb !important;
+}
+
+/* Additional fixes for specific markdown renderers */
+.blog-content .language-javascript,
+.blog-content .language-typescript,
+.blog-content .language-jsx,
+.blog-content .language-tsx,
+.blog-content .language-python,
+.blog-content .language-java,
+.blog-content .language-css,
+.blog-content .language-html,
+.blog-content .language-json,
+.blog-content .language-bash,
+.blog-content .language-shell {
+  color: #e5e7eb !important;
+}
+
+/* Fix for markdown preview specific styling */
+.blog-content .w-md-editor-text-pre code,
+.blog-content .w-md-editor-text-pre pre {
+  background-color: #1a1a1a !important;
+  color: #e5e7eb !important;
+}
+
+/* Smooth transitions for interactive elements */
+.blog-action-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.blog-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced loading animations */
+.generating-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Additional comprehensive fixes for all code visibility issues */
+
+/* Force all text in code blocks to be light colored */
+.blog-content pre,
+.blog-content pre *,
+.blog-content pre code,
+.blog-content pre code *,
+.blog-content .language-* {
+  color: #e5e7eb !important;
+}
+
+/* Override any inherited dark colors */
+.blog-content pre .hljs,
+.blog-content pre .hljs-*,
+.blog-content code .hljs,
+.blog-content code .hljs-* {
+  color: #e5e7eb !important;
+}
+
+/* Specific fixes for common syntax highlighting libraries */
+.blog-content pre .hljs-keyword {
+  color: #ff7b72 !important;
+}
+.blog-content pre .hljs-string {
+  color: #a5d6ff !important;
+}
+.blog-content pre .hljs-number {
+  color: #79c0ff !important;
+}
+.blog-content pre .hljs-variable {
+  color: #ffa657 !important;
+}
+.blog-content pre .hljs-function {
+  color: #d2a8ff !important;
+}
+.blog-content pre .hljs-comment {
+  color: #8b949e !important;
+}
+.blog-content pre .hljs-type {
+  color: #79c0ff !important;
+}
+.blog-content pre .hljs-class {
+  color: #d2a8ff !important;
+}
+.blog-content pre .hljs-property {
+  color: #79c0ff !important;
+}
+.blog-content pre .hljs-attr {
+  color: #79c0ff !important;
+}
+.blog-content pre .hljs-title {
+  color: #d2a8ff !important;
+}
+.blog-content pre .hljs-literal {
+  color: #79c0ff !important;
+}
+.blog-content pre .hljs-built_in {
+  color: #a5d6ff !important;
+}
+.blog-content pre .hljs-operator {
+  color: #ff7b72 !important;
+}
+.blog-content pre .hljs-punctuation {
+  color: #e5e7eb !important;
+}
+
+/* Fix for Prism.js */
+.blog-content pre[class*="language-"] {
+  background: #1a1a1a !important;
+  color: #e5e7eb !important;
+}
+
+.blog-content code[class*="language-"] {
+  background: transparent !important;
+  color: #e5e7eb !important;
+}
+
+/* Ensure no black text anywhere in code blocks */
+.blog-content pre span,
+.blog-content pre div,
+.blog-content pre p,
+.blog-content code span,
+.blog-content code div {
+  color: inherit !important;
+}
+
+/* Force override for any remaining black text */
+.blog-content pre [style*="color: black"],
+.blog-content pre [style*="color: #000"],
+.blog-content pre [style*="color:#000"],
+.blog-content code [style*="color: black"],
+.blog-content code [style*="color: #000"],
+.blog-content code [style*="color:#000"] {
+  color: #e5e7eb !important;
+}
+
+/* For @uiw/react-markdown-preview specific styling */
+.blog-content .w-md-editor-text-pre,
+.blog-content .w-md-editor-text-pre * {
+  background-color: #1a1a1a !important;
+  color: #e5e7eb !important;
+}
+
+/* Ensure code blocks are properly styled in markdown preview */
+.blog-content div[data-color-mode="dark"] pre,
+.blog-content div[data-color-mode="dark"] code {
+  background-color: #1a1a1a !important;
+  color: #e5e7eb !important;
+}
+
+.blog-content div[data-color-mode="light"] pre,
+.blog-content div[data-color-mode="light"] code {
+  background-color: #1a1a1a !important;
+  color: #e5e7eb !important;
+}
+
+/* Responsive font scaling */
+@media (max-width: 768px) {
+  .blog-content h1 {
+    font-size: calc(var(--reading-font-size, 16px) * 2);
+  }
+
+  .blog-content h2 {
+    font-size: calc(var(--reading-font-size, 16px) * 1.75);
+  }
+
+  .blog-content h3 {
+    font-size: calc(var(--reading-font-size, 16px) * 1.5);
+  }
+}
+
+/* Print styles for PDF generation */
+@media print {
+  .floating-controls,
+  .back-to-top,
+  .reading-time-indicator {
+    display: none !important;
+  }
+
+  .blog-content {
+    font-size: 12px !important;
+  }
+
+  .blog-content h1 {
+    font-size: 24px !important;
+  }
+
+  .blog-content h2 {
+    font-size: 20px !important;
+  }
+
+  .blog-content h3 {
+    font-size: 18px !important;
+  }
+}
+
+/* Final override for MarkdownPreview component */
+.blog-content .w-md-editor-text-pre .token,
+.blog-content .w-md-editor-text-pre span,
+.blog-content .w-md-editor-text-pre div,
+.blog-content .w-md-editor-text-input pre,
+.blog-content .w-md-editor-text-input code {
+  color: #e5e7eb !important;
+}
+
+/* Override any data-color-mode attributes */
+.blog-content [data-color-mode] pre,
+.blog-content [data-color-mode] code,
+.blog-content [data-color-mode] pre *,
+.blog-content [data-color-mode] code * {
+  background-color: #1a1a1a !important;
+  color: #e5e7eb !important;
+}

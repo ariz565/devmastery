@@ -27,15 +27,15 @@ export default async function handler(
       return res.status(404).json({ message: "User not found" });
     }
     if (req.method === "GET") {
-      const blog = await prisma.blog.findFirst({
+      const blog = await prisma.blog.findUnique({
         where: {
           id: id,
-          authorId: dbUser.id,
         },
         include: {
           author: {
             select: {
               name: true,
+              email: true,
             },
           },
         },

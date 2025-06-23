@@ -3,7 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
-import { FileText, StickyNote, Code, Users } from "lucide-react";
+import { FileText, StickyNote, Code, Users, FolderOpen } from "lucide-react";
 import Link from "next/link";
 
 interface DashboardStats {
@@ -11,6 +11,14 @@ interface DashboardStats {
   notes: number;
   leetcode: number;
   interviews: number;
+  topics: number;
+  recentActivity: Array<{
+    id: string;
+    title: string;
+    createdAt: string;
+    type: "blog" | "note" | "leetcode";
+    author: { name: string | null };
+  }>;
 }
 
 export default function AdminDashboard() {
@@ -20,6 +28,8 @@ export default function AdminDashboard() {
     notes: 0,
     leetcode: 0,
     interviews: 0,
+    topics: 0,
+    recentActivity: [],
   });
 
   useEffect(() => {
@@ -90,10 +100,9 @@ export default function AdminDashboard() {
           <p className="text-gray-500">
             Manage your content, track your progress, and grow your platform.
           </p>
-        </div>
-
+        </div>{" "}
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           <StatCard
             title="Total Blogs"
             value={stats.blogs}
@@ -107,6 +116,13 @@ export default function AdminDashboard() {
             icon={StickyNote}
             color="green"
             href="/admin/notes"
+          />
+          <StatCard
+            title="Topics"
+            value={stats.topics}
+            icon={FolderOpen}
+            color="indigo"
+            href="/admin/topics"
           />
           <StatCard
             title="LeetCode Problems"
@@ -123,37 +139,58 @@ export default function AdminDashboard() {
             href="/admin/interviews"
           />
         </div>
-
         {/* Recent Activity */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Recent Activity
           </h2>
           <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">
-                Created new blog post
-              </span>
-              <span className="text-xs text-gray-400">2 hours ago</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">
-                Added LeetCode solution
-              </span>
-              <span className="text-xs text-gray-400">5 hours ago</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">
-                Updated interview notes
-              </span>
-              <span className="text-xs text-gray-400">1 day ago</span>
-            </div>
+            {stats.recentActivity.length > 0 ? (
+              stats.recentActivity.map((activity, index) => (
+                <div key={activity.id} className="flex items-center space-x-3">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      activity.type === "blog"
+                        ? "bg-blue-500"
+                        : activity.type === "note"
+                        ? "bg-green-500"
+                        : "bg-purple-500"
+                    }`}
+                  ></div>
+                  <span className="text-sm text-gray-600">
+                    {activity.type === "blog"
+                      ? "Created blog:"
+                      : activity.type === "note"
+                      ? "Added note:"
+                      : "Added problem:"}{" "}
+                    <span className="font-medium">{activity.title}</span>
+                    {activity.author.name && (
+                      <span className="text-gray-400">
+                        {" "}
+                        by {activity.author.name}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(activity.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-gray-500 text-sm">No recent activity</p>
+                <p className="text-gray-400 text-xs mt-1">
+                  Create some content to see activity here
+                </p>
+              </div>
+            )}
           </div>
         </div>
-
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -183,6 +220,7 @@ function StatCard({ title, value, icon: Icon, color, href }: any) {
     green: "bg-green-500",
     purple: "bg-purple-500",
     orange: "bg-orange-500",
+    indigo: "bg-indigo-500",
   };
 
   return (

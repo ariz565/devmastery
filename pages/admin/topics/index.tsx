@@ -8,6 +8,15 @@ import {
   MoreVertical,
   X,
   AlertTriangle,
+  BookOpen,
+  List,
+  Eye,
+  FileText,
+  Code,
+  Brain,
+  Clock,
+  Star,
+  CheckCircle,
 } from "lucide-react";
 
 interface Topic {
@@ -39,6 +48,20 @@ interface SubTopic {
   };
 }
 
+interface TableOfContentsItem {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  order: number;
+  level: number; // 1 = main topic, 2 = subtopic, 3 = sub-subtopic
+  parentId?: string;
+  contentType: "blog" | "note" | "leetcode" | "section";
+  estimatedReadTime?: number;
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  isPublished: boolean;
+}
+
 export default function TopicsPage() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +80,28 @@ export default function TopicsPage() {
   const [editingSubTopicId, setEditingSubTopicId] = useState("");
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
   const [error, setError] = useState("");
+
+  // New states for table of contents
+  const [showTableOfContents, setShowTableOfContents] = useState(false);
+  const [selectedTopicForTOC, setSelectedTopicForTOC] = useState<Topic | null>(
+    null
+  );
+  const [tableOfContents, setTableOfContents] = useState<TableOfContentsItem[]>(
+    []
+  );
+  const [showCreateTOCItem, setShowCreateTOCItem] = useState(false);
+  const [tocForm, setTocForm] = useState({
+    title: "",
+    slug: "",
+    description: "",
+    order: 0,
+    level: 1,
+    parentId: "",
+    contentType: "section" as "blog" | "note" | "leetcode" | "section",
+    estimatedReadTime: 5,
+    difficulty: "beginner" as "beginner" | "intermediate" | "advanced",
+    isPublished: false,
+  });
 
   const [topicForm, setTopicForm] = useState({
     name: "",
@@ -263,6 +308,94 @@ export default function TopicsPage() {
     }
   };
 
+  // New functions for table of contents
+  const fetchTableOfContents = async (topicId: string) => {
+    try {
+      const response = await fetch(
+        `/api/admin/topics/${topicId}/table-of-contents`
+      );
+      const data = await response.json();
+      setTableOfContents(data);
+    } catch (error) {
+      console.error("Failed to fetch table of contents:", error);
+    }
+  };
+
+  const handleCreateTOCItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTopicForTOC) return;
+
+    try {
+      const response = await fetch(
+        `/api/admin/topics/${selectedTopicForTOC.id}/table-of-contents`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tocForm),
+        }
+      );
+
+      if (response.ok) {
+        fetchTableOfContents(selectedTopicForTOC.id);
+        setShowCreateTOCItem(false);
+        resetTOCForm();
+      } else {
+        const data = await response.json();
+        setError(data.message || "Failed to create table of contents item");
+      }
+    } catch (error) {
+      console.error("Failed to create TOC item:", error);
+      setError("Failed to create table of contents item");
+    }
+  };
+
+  const resetTOCForm = () => {
+    setTocForm({
+      title: "",
+      slug: "",
+      description: "",
+      order: 0,
+      level: 1,
+      parentId: "",
+      contentType: "section",
+      estimatedReadTime: 5,
+      difficulty: "beginner",
+      isPublished: false,
+    });
+  };
+
+  const openTableOfContents = (topic: Topic) => {
+    setSelectedTopicForTOC(topic);
+    setShowTableOfContents(true);
+    fetchTableOfContents(topic.id);
+  };
+
+  const getContentTypeIcon = (type: string) => {
+    switch (type) {
+      case "blog":
+        return <FileText className="w-4 h-4" />;
+      case "note":
+        return <BookOpen className="w-4 h-4" />;
+      case "leetcode":
+        return <Code className="w-4 h-4" />;
+      default:
+        return <List className="w-4 h-4" />;
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "beginner":
+        return "bg-green-100 text-green-800";
+      case "intermediate":
+        return "bg-yellow-100 text-yellow-800";
+      case "advanced":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
   const toggleTopic = (topicId: string) => {
     const newExpanded = new Set(expandedTopics);
     if (newExpanded.has(topicId)) {
@@ -343,10 +476,8 @@ export default function TopicsPage() {
       </AdminLayout>
     );
   }
-
   return (
     <AdminLayout>
-      {" "}
       <div className="space-y-6">
         {/* Error Display */}
         {error && (
@@ -469,6 +600,13 @@ export default function TopicsPage() {
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           Add Subtopic
+                        </button>
+                        <button
+                          onClick={() => openTableOfContents(topic)}
+                          className="text-gray-400 hover:text-gray-600"
+                          title="Manage Table of Contents"
+                        >
+                          <List className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -1028,6 +1166,357 @@ export default function TopicsPage() {
                   Delete {deleteTarget.type === "topic" ? "Topic" : "Subtopic"}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Table of Contents Modal */}
+        {showTableOfContents && selectedTopicForTOC && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg w-full max-w-6xl h-5/6 flex flex-col">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Table of Contents: {selectedTopicForTOC.name}
+                  </h2>
+                  <p className="text-gray-600">
+                    Organize learning materials and create a structured
+                    curriculum
+                  </p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setShowCreateTOCItem(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Content Item</span>
+                  </button>
+                  <button
+                    onClick={() => setShowTableOfContents(false)}
+                    className="p-2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Table of Contents Content */}
+              <div className="flex-1 overflow-auto p-6">
+                {tableOfContents.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Brain className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No content structure yet
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Create a comprehensive learning path for{" "}
+                      {selectedTopicForTOC.name}
+                    </p>
+                    <button
+                      onClick={() => setShowCreateTOCItem(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Create First Content Item
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {tableOfContents
+                      .sort((a, b) => a.order - b.order)
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className={`p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors ${
+                            item.level === 1
+                              ? "bg-blue-50 border-blue-200"
+                              : item.level === 2
+                              ? "ml-6 bg-green-50 border-green-200"
+                              : "ml-12 bg-yellow-50 border-yellow-200"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3 flex-1">
+                              <div className="flex items-center space-x-2">
+                                {getContentTypeIcon(item.contentType)}
+                                <span className="text-sm text-gray-500">
+                                  Level {item.level}
+                                </span>
+                              </div>
+
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3">
+                                  <h4 className="font-medium text-gray-900">
+                                    {item.title}
+                                  </h4>{" "}
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs ${getDifficultyColor(
+                                      item.difficulty || "beginner"
+                                    )}`}
+                                  >
+                                    {item.difficulty}
+                                  </span>
+                                  {!item.isPublished && (
+                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                                      Draft
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  /{item.slug}
+                                </p>
+                                <p className="text-sm text-gray-500 mt-1">
+                                  {item.description}
+                                </p>
+                                {item.estimatedReadTime && (
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    📚 ~{item.estimatedReadTime} min read
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                              <button
+                                className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                title="Edit content item"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                className="p-1 text-gray-400 hover:text-green-600 transition-colors"
+                                title="View content"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                title="Delete content item"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create TOC Item Modal */}
+        {showCreateTOCItem && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+              <h2 className="text-xl font-bold mb-4">Add Content Item</h2>
+              <form onSubmit={handleCreateTOCItem} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={tocForm.title}
+                      onChange={(e) => {
+                        const title = e.target.value;
+                        setTocForm((prev) => ({
+                          ...prev,
+                          title,
+                          slug: generateSlug(title),
+                        }));
+                      }}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      placeholder="e.g., Variables and Data Types"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Slug
+                    </label>
+                    <input
+                      type="text"
+                      value={tocForm.slug}
+                      onChange={(e) =>
+                        setTocForm((prev) => ({
+                          ...prev,
+                          slug: e.target.value,
+                        }))
+                      }
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={tocForm.description}
+                    onChange={(e) =>
+                      setTocForm((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    rows={3}
+                    placeholder="Brief description of what this content covers..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Content Type
+                    </label>{" "}
+                    <select
+                      value={tocForm.contentType}
+                      onChange={(e) =>
+                        setTocForm((prev) => ({
+                          ...prev,
+                          contentType: e.target.value as
+                            | "blog"
+                            | "note"
+                            | "leetcode"
+                            | "section",
+                        }))
+                      }
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="section">📚 Section</option>
+                      <option value="blog">📝 Blog Post</option>
+                      <option value="note">📋 Study Note</option>
+                      <option value="leetcode">💻 Code Problem</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Level
+                    </label>{" "}
+                    <select
+                      value={tocForm.level}
+                      onChange={(e) =>
+                        setTocForm((prev) => ({
+                          ...prev,
+                          level: parseInt(e.target.value),
+                        }))
+                      }
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value={1}>1 - Main Topic</option>
+                      <option value={2}>2 - Subtopic</option>
+                      <option value={3}>3 - Sub-subtopic</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Difficulty
+                    </label>{" "}
+                    <select
+                      value={tocForm.difficulty}
+                      onChange={(e) =>
+                        setTocForm((prev) => ({
+                          ...prev,
+                          difficulty: e.target.value as
+                            | "beginner"
+                            | "intermediate"
+                            | "advanced",
+                        }))
+                      }
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="beginner">🟢 Beginner</option>
+                      <option value="intermediate">🟡 Intermediate</option>
+                      <option value="advanced">🔴 Advanced</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Order
+                    </label>{" "}
+                    <input
+                      type="number"
+                      value={tocForm.order}
+                      onChange={(e) =>
+                        setTocForm((prev) => ({
+                          ...prev,
+                          order: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Estimated Read Time (minutes)
+                    </label>{" "}
+                    <input
+                      type="number"
+                      value={tocForm.estimatedReadTime}
+                      onChange={(e) =>
+                        setTocForm((prev) => ({
+                          ...prev,
+                          estimatedReadTime: parseInt(e.target.value) || 5,
+                        }))
+                      }
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      min="1"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  {" "}
+                  <input
+                    type="checkbox"
+                    id="isPublished"
+                    checked={tocForm.isPublished}
+                    onChange={(e) =>
+                      setTocForm((prev) => ({
+                        ...prev,
+                        isPublished: e.target.checked,
+                      }))
+                    }
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label
+                    htmlFor="isPublished"
+                    className="ml-2 block text-sm text-gray-900"
+                  >
+                    Publish immediately
+                  </label>
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateTOCItem(false);
+                      resetTOCForm();
+                    }}
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    Add Content Item
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

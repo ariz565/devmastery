@@ -56,6 +56,64 @@ export default function ViewBlogPage() {
     }
   };
 
+  const fetchBlog = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(`/api/admin/blogs/${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch blog");
+      }
+
+      const data = await response.json();
+      setBlog(data);
+
+      // Extract table of contents from content
+      const headings: { id: string; title: string; level: number }[] = [];
+      const lines = data.content.split("\n");
+      let headingIndex = 0;
+
+      lines.forEach((line: string) => {
+        if (line.startsWith("# ")) {
+          headings.push({
+            id: `heading-${headingIndex}`,
+            title: line.replace("# ", ""),
+            level: 1,
+          });
+          headingIndex++;
+        } else if (line.startsWith("## ")) {
+          headings.push({
+            id: `heading-${headingIndex}`,
+            title: line.replace("## ", ""),
+            level: 2,
+          });
+          headingIndex++;
+        } else if (line.startsWith("### ")) {
+          headings.push({
+            id: `heading-${headingIndex}`,
+            title: line.replace("### ", ""),
+            level: 3,
+          });
+          headingIndex++;
+        } else if (line.startsWith("#### ")) {
+          headings.push({
+            id: `heading-${headingIndex}`,
+            title: line.replace("#### ", ""),
+            level: 4,
+          });
+          headingIndex++;
+        }
+      });
+
+      setTableOfContents(headings);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formatContent = (content: string) => {
     // Split content by lines and process each line
     const lines = content.split("\n");
@@ -306,22 +364,6 @@ export default function ViewBlogPage() {
     setTableOfContents(tableOfContentsData);
   }, [tableOfContentsData]);
 
-  const fetchBlog = async () => {
-    try {
-      const response = await fetch(`/api/admin/blogs/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setBlog(data);
-      } else {
-        setError("Blog not found");
-      }
-    } catch (error) {
-      console.error("Failed to fetch blog:", error);
-      setError("Failed to load blog");
-    } finally {
-      setLoading(false);
-    }
-  };
   const togglePublishStatus = async () => {
     if (!blog) return;
 

@@ -1,10 +1,11 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const tokensContent = {
   blog: {
     title: "Access & Refresh Tokens: Complete Authentication Strategy Guide",
-    excerpt: "Master token-based authentication with access and refresh tokens. Learn implementation patterns, security best practices, and real-world examples.",
+    excerpt:
+      "Master token-based authentication with access and refresh tokens. Learn implementation patterns, security best practices, and real-world examples.",
     content: `# Access & Refresh Tokens: Complete Authentication Strategy Guide
 
 ## Introduction
@@ -741,9 +742,15 @@ Access and refresh tokens provide a secure, scalable authentication solution:
 This pattern balances security with user experience, making it ideal for modern web applications.
 `,
     category: "Authentication",
-    tags: ["Access Tokens", "Refresh Tokens", "Authentication", "JWT", "Security"],
+    tags: [
+      "Access Tokens",
+      "Refresh Tokens",
+      "Authentication",
+      "JWT",
+      "Security",
+    ],
     readTime: 18,
-    published: true
+    published: true,
   },
   note: {
     title: "Access & Refresh Tokens - Quick Reference",
@@ -814,19 +821,19 @@ This pattern balances security with user experience, making it ideal for modern 
 ❌ Session storage
 
 ## Security Headers
-\\`\\`\\`javascript
+\`\`\`javascript
 res.cookie('refreshToken', token, {
   httpOnly: true,
   secure: true,
   sameSite: 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000
 });
-\\`\\`\\`
+\`\`\`
 
 ## Frontend Implementation
 
 ### React Hook Pattern
-\\`\\`\\`javascript
+\`\`\`javascript
 const { user, accessToken, login, logout, refreshToken } = useAuth();
 
 // Axios interceptor for auto-refresh
@@ -840,7 +847,7 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-\\`\\`\\`
+\`\`\`
 
 ## Common Patterns
 
@@ -913,27 +920,27 @@ apiClient.interceptors.response.use(
 6. Check CORS and credentials settings
 `,
     category: "Authentication",
-    tags: ["Access Tokens", "Refresh Tokens", "Quick Reference"]
-  }
+    tags: ["Access Tokens", "Refresh Tokens", "Quick Reference"],
+  },
 };
 
 async function createTokensContent() {
   try {
-    console.log('🚀 Creating Access & Refresh Tokens Content...');
-    
+    console.log("🚀 Creating Access & Refresh Tokens Content...");
+
     const user = await prisma.user.findFirst();
     if (!user) {
-      throw new Error('No users found. Please create a user first.');
+      throw new Error("No users found. Please create a user first.");
     }
 
     // Find the access-refresh-tokens subtopic
     const subTopic = await prisma.subTopic.findFirst({
-      where: { slug: 'access-refresh-tokens' },
-      include: { topic: true }
+      where: { slug: "access-refresh-tokens" },
+      include: { topic: true },
     });
 
     if (!subTopic) {
-      console.log('⚠️ Access-refresh-tokens subtopic not found');
+      console.log("⚠️ Access-refresh-tokens subtopic not found");
       return;
     }
 
@@ -941,8 +948,8 @@ async function createTokensContent() {
     const existingBlog = await prisma.blog.findFirst({
       where: {
         title: tokensContent.blog.title,
-        authorId: user.id
-      }
+        authorId: user.id,
+      },
     });
 
     if (!existingBlog) {
@@ -951,8 +958,8 @@ async function createTokensContent() {
           ...tokensContent.blog,
           topicId: subTopic.topicId,
           subTopicId: subTopic.id,
-          authorId: user.id
-        }
+          authorId: user.id,
+        },
       });
       console.log(`✅ Created blog: ${tokensContent.blog.title}`);
     } else {
@@ -963,8 +970,8 @@ async function createTokensContent() {
     const existingNote = await prisma.note.findFirst({
       where: {
         title: tokensContent.note.title,
-        authorId: user.id
-      }
+        authorId: user.id,
+      },
     });
 
     if (!existingNote) {
@@ -973,18 +980,17 @@ async function createTokensContent() {
           ...tokensContent.note,
           topicId: subTopic.topicId,
           subTopicId: subTopic.id,
-          authorId: user.id
-        }
+          authorId: user.id,
+        },
       });
       console.log(`✅ Created note: ${tokensContent.note.title}`);
     } else {
       console.log(`⏭️ Note already exists: ${tokensContent.note.title}`);
     }
 
-    console.log('\n✅ Successfully created Access & Refresh Tokens content!');
-
+    console.log("\n✅ Successfully created Access & Refresh Tokens content!");
   } catch (error) {
-    console.error('❌ Error creating tokens content:', error);
+    console.error("❌ Error creating tokens content:", error);
   } finally {
     await prisma.$disconnect();
   }

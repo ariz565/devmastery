@@ -5,11 +5,14 @@ import Link from "next/link";
 
 <div className="w-auto px-2 pt-16 pb-8 mx-auto sm:pt-24 lg:px-8">
   <div className="w-auto grid grid-cols-2">
-    <img src="./java.png" height="100" width="300"
+    <img
+      src="./java.png"
+      height="100"
+      width="300"
       style={{
         transform: "scale(1.4)",
         marginTop: "3rem",
-        borderRadius: "50%"
+        borderRadius: "50%",
       }}
     />
     <img
@@ -28,16 +31,27 @@ import Link from "next/link";
 Welcome to DevMastery, your comprehensive platform for mastering software engineering skills. Our mission is to empower developers through high-quality tutorials, coding challenges, and interview preparation resources. Whether you're preparing for technical interviews, learning new technologies, or advancing your career, DevMastery provides the tools and knowledge you need to succeed.
 
 <div className="my-8 flex flex-col sm:flex-row gap-4">
-  <Link href="/blogs" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+  <Link
+    href="/blogs"
+    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+  >
     📚 Explore Our Blog
   </Link>
-  <Link href="/admin" className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+  <Link
+    href="/study-room"
+    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+  >
+    🏠 Enter Study Room
+  </Link>
+  <Link
+    href="/admin"
+    className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+  >
     ⚙️ Admin Dashboard
   </Link>
 </div>
 
-<Features />
----
+## <Features />
 
 Our content is designed to guide you through common problems and patterns encountered in software development. From data structures and algorithms to system design and coding best practices, we cover all aspects of modern software engineering. The goal is to build your confidence, expand your knowledge, and help you excel in your development journey.
 

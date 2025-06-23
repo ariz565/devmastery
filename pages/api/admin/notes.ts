@@ -22,8 +22,21 @@ export default async function handler(
         return res.status(404).json({ message: "User not found" });
       }
 
+      // For admin, get all notes, not just user's own notes
       const notes = await prisma.note.findMany({
-        where: { authorId: dbUser.id },
+        include: {
+          author: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+          topic: {
+            select: {
+              name: true,
+            },
+          },
+        },
         orderBy: { createdAt: "desc" },
       });
 
