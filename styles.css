@@ -1,66 +1,145 @@
 @import "@uiw/react-md-editor/markdown-editor.css";
 @import "@uiw/react-markdown-preview/markdown.css";
+@import "./styles/reading.css";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
+@theme {
+  --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-family-display: "Plus Jakarta Sans", "Inter", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-mono: "Menlo", "Monaco", "Courier New", monospace;
+
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(15% 0 0);
+  --color-border: oklch(89% 0 0);
+  --color-input: oklch(89% 0 0);
+  --color-ring: oklch(57% 0.17 237);
+  --color-primary: oklch(57% 0.17 237);
+  --color-primary-foreground: oklch(98% 0 0);
+  --color-secondary: oklch(96% 0 0);
+  --color-secondary-foreground: oklch(15% 0 0);
+  --color-muted: oklch(96% 0 0);
+  --color-muted-foreground: oklch(52% 0 0);
+  --color-accent: oklch(96% 0 0);
+  --color-accent-foreground: oklch(15% 0 0);
+  --color-destructive: oklch(60% 0.17 27);
+  --color-destructive-foreground: oklch(98% 0 0);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(15% 0 0);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(15% 0 0);
+
+  --radius: 0.5rem;
+}
+
+.light {
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(15% 0 0);
+  --color-border: oklch(89% 0 0);
+  --color-input: oklch(89% 0 0);
+  --color-ring: oklch(57% 0.17 237);
+  --color-primary: oklch(57% 0.17 237);
+  --color-primary-foreground: oklch(98% 0 0);
+  --color-secondary: oklch(96% 0 0);
+  --color-secondary-foreground: oklch(15% 0 0);
+  --color-muted: oklch(96% 0 0);
+  --color-muted-foreground: oklch(52% 0 0);
+  --color-accent: oklch(96% 0 0);
+  --color-accent-foreground: oklch(15% 0 0);
+  --color-destructive: oklch(60% 0.17 27);
+  --color-destructive-foreground: oklch(98% 0 0);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(15% 0 0);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(15% 0 0);
+}
+
+.dark {
+  --color-background: oklch(10% 0 0);
+  --color-foreground: oklch(98% 0 0);
+  --color-border: oklch(20% 0 0);
+  --color-input: oklch(20% 0 0);
+  --color-ring: oklch(84% 0.17 237);
+  --color-primary: oklch(67% 0.18 237);
+  --color-primary-foreground: oklch(10% 0 0);
+  --color-secondary: oklch(18% 0 0);
+  --color-secondary-foreground: oklch(98% 0 0);
+  --color-muted: oklch(18% 0 0);
+  --color-muted-foreground: oklch(65% 0 0);
+  --color-accent: oklch(18% 0 0);
+  --color-accent-foreground: oklch(98% 0 0);
+  --color-destructive: oklch(31% 0.17 27);
+  --color-destructive-foreground: oklch(98% 0 0);
+  --color-card: oklch(10% 0 0);
+  --color-card-foreground: oklch(98% 0 0);
+  --color-popover: oklch(10% 0 0);
+  --color-popover-foreground: oklch(98% 0 0);
+}
+
+@media (prefers-color-scheme: dark) {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-  }
-  .theme {
-    --animate-grid: grid 15s linear infinite;
+    --color-background: oklch(10% 0 0);
+    --color-foreground: oklch(98% 0 0);
+    --color-border: oklch(20% 0 0);
+    --color-input: oklch(20% 0 0);
+    --color-ring: oklch(84% 0.17 237);
+    --color-primary: oklch(67% 0.18 237);
+    --color-primary-foreground: oklch(10% 0 0);
+    --color-secondary: oklch(18% 0 0);
+    --color-secondary-foreground: oklch(98% 0 0);
+    --color-muted: oklch(18% 0 0);
+    --color-muted-foreground: oklch(65% 0 0);
+    --color-accent: oklch(18% 0 0);
+    --color-accent-foreground: oklch(98% 0 0);
+    --color-destructive: oklch(31% 0.17 27);
+    --color-destructive-foreground: oklch(98% 0 0);
+    --color-card: oklch(10% 0 0);
+    --color-card-foreground: oklch(98% 0 0);
+    --color-popover: oklch(10% 0 0);
+    --color-popover-foreground: oklch(98% 0 0);
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: theme(colors.border);
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: theme(colors.background);
+    color: theme(colors.foreground);
+    font-family: theme(fontFamily.sans);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Enhanced typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-family-display);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+
+  /* Better text contrast and spacing */
+  p {
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  /* Smooth transitions for interactive elements */
+  a,
+  button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 /**
@@ -875,4 +954,65 @@ pre {
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background-color: rgb(148 163 184);
+}
+
+/* Custom animations for the redesigned landing page */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Smooth transitions for gradients */
+.gradient-text {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Enhanced backdrop blur for better readability */
+.glass-effect {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Professional text shadows for better contrast */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure Inter font loads properly */
+.font-display,
+.font-sans {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }

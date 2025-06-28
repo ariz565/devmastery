@@ -2,38 +2,41 @@ import { SignIn } from "@clerk/nextjs";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <img className="h-12 w-auto" src="/logo.svg" alt="DevMastery" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Welcome to DevMastery
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+          Welcome Back
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Sign in to access your admin dashboard
+        <p className="mt-2 text-center text-sm text-gray-300">
+          Sign in to continue your coding journey
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white/10 backdrop-blur-sm py-8 px-4 shadow-2xl border border-white/20 sm:rounded-lg sm:px-10">
           <SignIn
-            afterSignInUrl="/admin"
+            afterSignInUrl="/topics"
             appearance={{
               elements: {
                 formButtonPrimary:
-                  "bg-blue-600 hover:bg-blue-700 text-sm normal-case",
-                formFieldInput: "text-sm",
-                formFieldLabel: "text-sm font-medium text-gray-700",
+                  "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-sm normal-case font-medium",
+                formFieldInput: "text-sm bg-white/90 border-white/20",
+                formFieldLabel: "text-sm font-medium text-white",
                 headerTitle: "hidden",
                 headerSubtitle: "hidden",
-                socialButtonsBlockButton: "text-sm normal-case border-gray-300",
-                dividerLine: "bg-gray-200",
-                dividerText: "text-gray-500 text-sm",
-                footerActionLink: "text-blue-600 hover:text-blue-500",
-                formResendCodeLink: "text-blue-600 hover:text-blue-500",
-                otpCodeFieldInput: "text-sm",
+                socialButtonsBlockButton:
+                  "text-sm normal-case border-white/30 bg-white/10 hover:bg-white/20 text-white",
+                dividerLine: "bg-white/20",
+                dividerText: "text-gray-300 text-sm",
+                footerActionLink: "text-blue-400 hover:text-blue-300",
+                formResendCodeLink: "text-blue-400 hover:text-blue-300",
+                otpCodeFieldInput: "text-sm bg-white/90",
                 formHeaderTitle: "hidden",
+                card: "bg-transparent shadow-none",
+                rootBox: "bg-transparent",
               },
             }}
           />
@@ -41,11 +44,11 @@ export default function SignInPage() {
       </div>
 
       <div className="mt-8 text-center">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-300">
           New to DevMastery?{" "}
           <a
             href="/sign-up"
-            className="font-medium text-blue-600 hover:text-blue-500"
+            className="font-medium text-blue-400 hover:text-blue-300"
           >
             Create an account
           </a>

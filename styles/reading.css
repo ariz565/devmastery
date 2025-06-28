@@ -1,0 +1,174 @@
+/* Reading Page Zoom Styles */
+.zoom-50 {
+  font-size: 50%;
+  line-height: 1.6;
+}
+.zoom-60 {
+  font-size: 60%;
+  line-height: 1.6;
+}
+.zoom-70 {
+  font-size: 70%;
+  line-height: 1.6;
+}
+.zoom-80 {
+  font-size: 80%;
+  line-height: 1.6;
+}
+.zoom-90 {
+  font-size: 90%;
+  line-height: 1.6;
+}
+.zoom-100 {
+  font-size: 100%;
+  line-height: 1.6;
+}
+.zoom-110 {
+  font-size: 110%;
+  line-height: 1.7;
+}
+.zoom-120 {
+  font-size: 120%;
+  line-height: 1.7;
+}
+.zoom-130 {
+  font-size: 130%;
+  line-height: 1.8;
+}
+.zoom-140 {
+  font-size: 140%;
+  line-height: 1.8;
+}
+.zoom-150 {
+  font-size: 150%;
+  line-height: 1.8;
+}
+.zoom-160 {
+  font-size: 160%;
+  line-height: 1.8;
+}
+.zoom-170 {
+  font-size: 170%;
+  line-height: 1.8;
+}
+.zoom-180 {
+  font-size: 180%;
+  line-height: 1.8;
+}
+.zoom-190 {
+  font-size: 190%;
+  line-height: 1.8;
+}
+.zoom-200 {
+  font-size: 200%;
+  line-height: 1.8;
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .prose {
+    max-width: none !important;
+  }
+}
+
+/* Enhanced Prose Styles */
+.enhanced-prose {
+  color: inherit;
+}
+
+.enhanced-prose h1,
+.enhanced-prose h2,
+.enhanced-prose h3,
+.enhanced-prose h4,
+.enhanced-prose h5,
+.enhanced-prose h6 {
+  color: inherit;
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  line-height: 1.25;
+}
+
+.enhanced-prose h1 {
+  font-size: 2.25em;
+}
+.enhanced-prose h2 {
+  font-size: 1.875em;
+}
+.enhanced-prose h3 {
+  font-size: 1.5em;
+}
+.enhanced-prose h4 {
+  font-size: 1.25em;
+}
+.enhanced-prose h5 {
+  font-size: 1.125em;
+}
+.enhanced-prose h6 {
+  font-size: 1em;
+}
+
+.enhanced-prose p {
+  margin-bottom: 1.25em;
+  line-height: 1.75;
+}
+
+.enhanced-prose ul,
+.enhanced-prose ol {
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.enhanced-prose li {
+  margin-bottom: 0.5em;
+}
+
+.enhanced-prose blockquote {
+  margin: 1.6em 0;
+  padding-left: 1em;
+  border-left: 0.25em solid;
+  font-style: italic;
+}
+
+.enhanced-prose pre {
+  margin: 1.6em 0;
+  padding: 1em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.enhanced-prose code {
+  padding: 0.125em 0.25em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.enhanced-prose table {
+  width: 100%;
+  margin: 1.6em 0;
+  border-collapse: collapse;
+}
+
+.enhanced-prose th,
+.enhanced-prose td {
+  padding: 0.75em;
+  border: 1px solid;
+  text-align: left;
+}
+
+.enhanced-prose th {
+  font-weight: 600;
+}

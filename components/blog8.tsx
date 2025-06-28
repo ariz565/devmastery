@@ -73,7 +73,9 @@ const Blog8 = ({
                 <div className="sm:col-span-5">
                   <div className="mb-4 md:mb-6">
                     <div className="flex flex-wrap gap-3 text-xs uppercase tracking-wider text-muted-foreground md:gap-5 lg:gap-6">
-                      {post.tags?.map((tag) => <span key={tag}>{tag}</span>)}
+                      {post.tags?.map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
                     </div>
                   </div>
                   <h3 className="text-xl font-semibold md:text-2xl lg:text-3xl">
@@ -108,7 +110,7 @@ const Blog8 = ({
                 </div>
                 <div className="order-first sm:order-last sm:col-span-5">
                   <a href={post.url} target="_blank" className="block">
-                    <div className="aspect-[16/9] overflow-clip rounded-lg border border-border">
+                    <div className="aspect-[16/9] overflow-clip rounded-lg border border-gray-200 dark:border-gray-700">
                       <img
                         src={post.image}
                         alt={post.title}
