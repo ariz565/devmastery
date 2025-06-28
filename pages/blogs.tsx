@@ -96,18 +96,25 @@ export default function BlogsListPage() {
   };
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 relative overflow-hidden">
+        <AnimatedGridPattern
+          numSquares={30}
+          maxOpacity={0.1}
+          duration={3}
+          repeatDelay={1}
+          className="absolute inset-0 [mask-image:radial-gradient(500px_circle_at_center,white,transparent)]"
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-8"></div>
+            <div className="h-8 bg-gray-700 rounded w-1/4 mb-8"></div>
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow"
+                className="mb-8 p-6 bg-gray-800/90 backdrop-blur-sm rounded-lg shadow border border-gray-700"
               >
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                <div className="h-6 bg-gray-700 rounded w-3/4 mb-4"></div>
+                <div className="h-4 bg-gray-700 rounded w-full mb-2"></div>
+                <div className="h-4 bg-gray-700 rounded w-2/3"></div>
               </div>
             ))}
           </div>
@@ -117,13 +124,13 @@ export default function BlogsListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white py-12 relative overflow-hidden">
       <AnimatedGridPattern
-        numSquares={40}
-        maxOpacity={0.08}
-        duration={4}
-        repeatDelay={1.5}
-        className="absolute inset-0 [mask-image:radial-gradient(600px_circle_at_center,white,transparent)]"
+        numSquares={30}
+        maxOpacity={0.1}
+        duration={3}
+        repeatDelay={1}
+        className="absolute inset-0 [mask-image:radial-gradient(500px_circle_at_center,white,transparent)]"
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Navigation */}
@@ -131,25 +138,25 @@ export default function BlogsListPage() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/topics"
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-lg hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 shadow-sm"
             >
               <FolderTree className="w-4 h-4 mr-2" />
               Topics
             </Link>
-            <div className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm">
+            <div className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-400 bg-blue-900/20 border border-blue-800 rounded-lg shadow-sm">
               <BookOpen className="w-4 h-4 mr-2" />
               Blogs
             </div>
             <Link
               href="/notes"
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-lg hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 shadow-sm"
             >
               <FileText className="w-4 h-4 mr-2" />
               Notes
             </Link>
             <Link
               href="/leetcode"
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-200 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-lg hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 shadow-sm"
             >
               <Code className="w-4 h-4 mr-2" />
               LeetCode
@@ -158,14 +165,14 @@ export default function BlogsListPage() {
         </div>
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-white mb-4">
             DevMastery Blog
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Explore our collection of technical articles, tutorials, and
             insights on programming, data structures, web development, and more.
           </p>
-        </div>{" "}
+        </div>
         {/* Search and Filters */}
         <div className="mb-8 flex flex-col sm:flex-row gap-4">
           {/* Search */}
@@ -175,7 +182,7 @@ export default function BlogsListPage() {
               placeholder="Search blogs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800/90 backdrop-blur-sm text-white placeholder-gray-400"
             />
           </div>
           {/* Category Filter */}
@@ -183,7 +190,7 @@ export default function BlogsListPage() {
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             title="Filter by category"
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="px-4 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800/90 backdrop-blur-sm text-white"
           >
             {categories.map((category) => (
               <option key={category} value={category}>
@@ -191,12 +198,12 @@ export default function BlogsListPage() {
               </option>
             ))}
           </select>
-        </div>{" "}
+        </div>
         {/* Blog Content */}
         {filteredBlogs.length === 0 ? (
           <div className="text-center py-12">
-            <BookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-400 text-lg">
               No blogs found matching your criteria.
             </p>
           </div>

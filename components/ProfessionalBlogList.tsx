@@ -73,99 +73,97 @@ const ProfessionalBlogList = ({ posts }: BlogListProps) => {
     <div className="space-y-12">
       {posts.map((post, index) => (
         <div key={post.id} className="relative group">
-          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:p-8 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-750 hover:border-gray-300 dark:hover:border-gray-500">
+          <Card className="bg-gray-800/90 backdrop-blur-sm border border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 lg:p-8 rounded-xl hover:bg-gray-800/95 hover:border-gray-600 hover:-translate-y-1">
             <div className="grid gap-y-6 sm:grid-cols-10 sm:gap-x-6 sm:gap-y-0 md:items-center md:gap-x-8 lg:gap-x-12">
               <div className="sm:col-span-6">
                 <div className="mb-4 md:mb-6">
-                  <div className="flex flex-wrap gap-3 text-xs uppercase tracking-wider text-muted-foreground md:gap-5 lg:gap-6">
-                    {" "}
+                  <div className="flex flex-wrap gap-2 sm:gap-3 text-xs uppercase tracking-wider md:gap-5 lg:gap-6">
                     {post.tags?.map((tag) => (
                       <span
                         key={tag}
-                        className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 text-blue-700 dark:text-blue-300 rounded-full font-medium text-xs border border-blue-200 dark:border-blue-700/50"
+                        className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-blue-900/40 to-blue-800/30 text-blue-300 rounded-full font-medium text-xs border border-blue-700/50"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold md:text-2xl lg:text-3xl text-gray-900 dark:text-white leading-tight mb-4">
+                <h3 className="text-lg sm:text-xl font-semibold md:text-2xl lg:text-3xl text-white leading-tight mb-3 sm:mb-4">
                   <Link
                     href={post.url}
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="hover:text-blue-400 transition-colors"
                   >
                     {post.title}
                   </Link>
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 md:mt-5 leading-relaxed">
+                <p className="text-gray-300 md:mt-5 leading-relaxed text-sm sm:text-base">
                   {post.summary}
                 </p>
-                <div className="mt-6 flex items-center space-x-4 text-sm md:mt-8">
-                  <span className="text-gray-500 dark:text-gray-400 font-medium">
+                <div className="mt-4 sm:mt-6 flex items-center space-x-3 sm:space-x-4 text-sm md:mt-8">
+                  <span className="text-gray-400 font-medium">
                     {post.author}
                   </span>
-                  <span className="text-gray-400 dark:text-gray-500">•</span>
-                  <span className="text-gray-500 dark:text-gray-400">
-                    {post.published}
-                  </span>
+                  <span className="text-gray-500">•</span>
+                  <span className="text-gray-400">{post.published}</span>
                 </div>
                 {/* Action Buttons */}
-                <div className="mt-6 flex items-center justify-between md:mt-8 pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center space-x-6">
+                <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between md:mt-8 pt-4 border-t border-gray-700 gap-4 sm:gap-0">
+                  <div className="flex items-center space-x-3 sm:space-x-6">
                     <button
                       onClick={() => handleLike(post.id)}
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                      className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-sm ${
                         likedPosts.has(post.id)
-                          ? "text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
-                          : "text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          ? "text-red-400 bg-red-900/20"
+                          : "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
                       }`}
                     >
                       <Heart
-                        className={`w-4 h-4 ${
+                        className={`w-3 h-3 sm:w-4 sm:h-4 ${
                           likedPosts.has(post.id) ? "fill-current" : ""
                         }`}
                       />
-                      <span className="text-sm font-medium">Like</span>
+                      <span className="font-medium hidden sm:inline">Like</span>
                     </button>
 
                     <button
                       onClick={() => handleSave(post.id)}
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                      className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-sm ${
                         savedPosts.has(post.id)
-                          ? "text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                          : "text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          ? "text-blue-400 bg-blue-900/20"
+                          : "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
                       }`}
                     >
                       <Bookmark
-                        className={`w-4 h-4 ${
+                        className={`w-3 h-3 sm:w-4 sm:h-4 ${
                           savedPosts.has(post.id) ? "fill-current" : ""
                         }`}
                       />
-                      <span className="text-sm font-medium">Save</span>
+                      <span className="font-medium hidden sm:inline">Save</span>
                     </button>
 
                     <button
                       onClick={() => handleShare(post)}
-                      className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200"
+                      className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-gray-400 hover:text-green-400 hover:bg-green-900/20 transition-all duration-200 text-sm"
                     >
-                      <Share2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">Share</span>
+                      <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="font-medium hidden sm:inline">
+                        Share
+                      </span>
                     </button>
                   </div>
 
                   <Link
                     href={post.url}
-                    className="inline-flex items-center px-4 py-2 font-semibold text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-blue-600 dark:hover:bg-blue-500 border border-blue-600 dark:border-blue-400 rounded-lg transition-all duration-200 md:text-base group"
+                    className="inline-flex items-center px-3 sm:px-4 py-2 font-semibold text-blue-400 hover:text-white bg-transparent hover:bg-blue-600 border border-blue-400 rounded-lg transition-all duration-200 text-sm sm:text-base group"
                   >
                     <span>Read more</span>
-                    <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </div>
               </div>
               <div className="order-first sm:order-last sm:col-span-4">
-                {" "}
                 <Link href={post.url} className="block group">
-                  <div className="aspect-[4/3] overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 shadow-md hover:shadow-lg transition-all duration-300">
+                  <div className="aspect-[4/3] overflow-hidden rounded-xl border-2 border-gray-600 bg-gray-700 shadow-md hover:shadow-lg transition-all duration-300">
                     {post.image ? (
                       <img
                         src={post.image}
@@ -173,9 +171,9 @@ const ProfessionalBlogList = ({ posts }: BlogListProps) => {
                         className="h-full w-full object-cover transition-all duration-500 group-hover:scale-110"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                      <div className="h-full w-full flex items-center justify-center text-gray-500">
                         <svg
-                          className="w-16 h-16"
+                          className="w-12 h-12 sm:w-16 sm:h-16"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -195,7 +193,7 @@ const ProfessionalBlogList = ({ posts }: BlogListProps) => {
 
           {/* Add subtle separator line between cards, except for the last one */}
           {index < posts.length - 1 && (
-            <div className="absolute left-1/2 transform -translate-x-1/2 mt-6 w-24 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-600 to-transparent"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 mt-6 w-24 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
           )}
         </div>
       ))}
