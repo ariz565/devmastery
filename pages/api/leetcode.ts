@@ -38,6 +38,7 @@ export default async function handler(
           createdAt: true,
           author: {
             select: {
+              id: true,
               name: true,
             },
           },
@@ -54,7 +55,39 @@ export default async function handler(
         },
       });
 
-      return res.status(200).json({ problems });
+      // Transform problems to ensure all fields exist
+      const transformedProblems = problems.map((problem) => ({
+        id: problem.id,
+        title: problem.title,
+        description: problem.description,
+        difficulty: problem.difficulty,
+        tags: problem.tags || [],
+        hints: problem.hints || [],
+        followUp: problem.followUp,
+        companies: problem.companies || [],
+        frequency: problem.frequency,
+        acceptance: problem.acceptance,
+        isPremium: problem.isPremium,
+        category: problem.category,
+        leetcodeUrl: problem.leetcodeUrl,
+        problemNumber: problem.problemNumber,
+        createdAt: problem.createdAt,
+        // Author with null checks
+        author: {
+          id: problem.author?.id || "anonymous",
+          name: problem.author?.name || "Anonymous",
+        },
+        authorName: problem.author?.name || "Anonymous",
+        // Transform solutions and resources
+        solutions: problem.solutions || [],
+        resources: problem.resources || [],
+      }));
+
+      return res.status(200).json({
+        success: true,
+        problems: transformedProblems,
+        total: transformedProblems.length,
+      });
     } catch (error) {
       console.error("Error fetching leetcode problems:", error);
       return res.status(500).json({ message: "Internal server error" });

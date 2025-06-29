@@ -85,7 +85,7 @@ export default async function handler(req: any, res: any) {
       coverImage: blog.coverImage,
       category: blog.category,
       subCategory: blog.subCategory,
-      tags: blog.tags,
+      tags: blog.tags || [],
       published: blog.published,
       status: blog.published ? "published" : "draft",
       readingTime: blog.readTime || 5,
@@ -98,24 +98,24 @@ export default async function handler(req: any, res: any) {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, ""),
-      // Author information
-      authorId: blog.author.id,
-      authorName: blog.author.name || "Anonymous",
-      authorEmail: blog.author.email,
+      // Author information - with null checks
+      authorId: blog.author?.id || "anonymous",
+      authorName: blog.author?.name || "Anonymous",
+      authorEmail: blog.author?.email || "",
       authorAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        blog.author.name || "Anonymous"
+        blog.author?.name || "Anonymous"
       )}&background=random`,
       // Generate demo engagement stats
       views: Math.floor(Math.random() * 1000) + 100,
       likes: Math.floor(Math.random() * 50) + 10,
-      // Topic information
+      // Topic information - with null checks
       topic: blog.topic
         ? {
             id: blog.topic.id,
             name: blog.topic.name,
             title: blog.topic.name,
             slug: blog.topic.slug,
-            icon: blog.topic.icon,
+            icon: blog.topic.icon || "Code",
           }
         : null,
       subTopic: blog.subTopic
@@ -124,7 +124,7 @@ export default async function handler(req: any, res: any) {
             name: blog.subTopic.name,
             title: blog.subTopic.name,
             slug: blog.subTopic.slug,
-            icon: blog.subTopic.icon,
+            icon: blog.subTopic.icon || "FileText",
           }
         : null,
     }));
