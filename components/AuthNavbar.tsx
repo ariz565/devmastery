@@ -106,10 +106,10 @@ export default function AuthNavbar() {
           </div>
         </>
       ) : (
-        <div className="flex items-center space-x-3">
+        <div className="hidden lg:flex items-center space-x-3">
           <SignInButton mode="modal">
-            <button className="group inline-flex items-center px-8 py-3 text-sm font-bold bg-gradient-to-r from-white to-gray-100 text-gray-900 rounded-full hover:from-blue-50 hover:to-white hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl border border-white/20">
-              <LogIn className="w-4 h-4 mr-2.5 group-hover:scale-110 transition-transform duration-300" />
+            <button className="group inline-flex items-center px-4 py-2 text-sm font-medium bg-gradient-to-r from-white to-gray-100 text-gray-900 rounded-lg hover:from-blue-50 hover:to-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border border-white/20">
+              <LogIn className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
               Sign In
             </button>
           </SignInButton>
@@ -149,6 +149,18 @@ export default function AuthNavbar() {
                   <Settings className="w-5 h-5 mr-4 group-hover:rotate-180 transition-transform duration-500" />
                   Admin Dashboard
                 </button>
+              )}
+
+              {!user && (
+                <SignInButton mode="modal">
+                  <button
+                    onClick={toggleMobileMenu}
+                    className="group flex items-center w-full px-6 py-4 text-base font-medium bg-gradient-to-r from-white to-gray-100 text-gray-900 hover:from-blue-50 hover:to-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl border border-white/20"
+                  >
+                    <LogIn className="w-5 h-5 mr-4 group-hover:scale-110 transition-transform duration-300" />
+                    Sign In
+                  </button>
+                </SignInButton>
               )}
             </div>
           </div>
