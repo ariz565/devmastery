@@ -1,15 +1,15 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
+  if (req.method !== "GET") {
+    return res.status(405).json({ message: "Method not allowed" });
   }
 
   try {
-    console.log('🔍 Fetching topics from database...');
-    
+    console.log("🔍 Fetching topics from database...");
+
     // Fetch topics using YOUR actual schema field names
     const topics = await prisma.topic.findMany({
       include: {
@@ -22,7 +22,7 @@ export default async function handler(req: any, res: any) {
             icon: true,
             order: true,
           },
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         author: {
           select: {
@@ -38,18 +38,18 @@ export default async function handler(req: any, res: any) {
           },
         },
       },
-      orderBy: [
-        { order: 'asc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
 
     console.log(`✅ Found ${topics.length} topics`);
 
     // Calculate stats
     const totalTopics = topics.length;
-    const totalSubtopics = topics.reduce((sum, topic) => sum + (topic.subTopics?.length || 0), 0);
-    
+    const totalSubtopics = topics.reduce(
+      (sum, topic) => sum + (topic.subTopics?.length || 0),
+      0
+    );
+
     const [blogsCount, notesCount] = await Promise.all([
       prisma.blog.count({ where: { published: true } }),
       prisma.note.count(),
@@ -63,30 +63,31 @@ export default async function handler(req: any, res: any) {
     };
 
     // Transform to match frontend expectations
-    const transformedTopics = topics.map(topic => ({
+    const transformedTopics = topics.map((topic) => ({
       id: topic.id,
       title: topic.name, // Map 'name' to 'title' for frontend compatibility
       name: topic.name,
       slug: topic.slug,
       description: topic.description || `Learn about ${topic.name}`,
-      icon: topic.icon || 'Code',
+      icon: topic.icon || "Code",
       color: getTopicColor(topic.order), // Assign colors based on order
       isPopular: topic.order <= 3, // Mark first 3 as popular
       order: topic.order,
       createdAt: topic.createdAt,
       updatedAt: topic.updatedAt,
-      authorName: topic.author?.name || 'DevMastery Team',
-      subtopics: topic.subTopics?.map(sub => ({
-        id: sub.id,
-        title: sub.name, // Map 'name' to 'title'
-        name: sub.name,
-        slug: sub.slug,
-        description: sub.description || `Learn about ${sub.name}`,
-        icon: sub.icon || 'FileText',
-        difficulty: getDifficultyFromOrder(sub.order),
-        estimatedTime: getEstimatedTime(sub.order),
-        order: sub.order,
-      })) || [],
+      authorName: topic.author?.name || "DevMastery Team",
+      subtopics:
+        topic.subTopics?.map((sub) => ({
+          id: sub.id,
+          title: sub.name, // Map 'name' to 'title'
+          name: sub.name,
+          slug: sub.slug,
+          description: sub.description || `Learn about ${sub.name}`,
+          icon: sub.icon || "FileText",
+          difficulty: getDifficultyFromOrder(sub.order),
+          estimatedTime: getEstimatedTime(sub.order),
+          order: sub.order,
+        })) || [],
       stats: {
         blogs: topic._count.blogs,
         notes: topic._count.notes,
@@ -97,7 +98,7 @@ export default async function handler(req: any, res: any) {
     // Also include the navigation structure for backward compatibility
     const navigationStructure = topics.reduce((acc, topic) => {
       acc[topic.slug] = {
-        title: `${topic.icon || '📚'} ${topic.name}`,
+        title: `${topic.icon || "📚"} ${topic.name}`,
         type: "page",
         href: `/topics/${topic.slug}`,
       };
@@ -105,7 +106,7 @@ export default async function handler(req: any, res: any) {
       // Add subtopics
       topic.subTopics.forEach((subTopic) => {
         acc[`${topic.slug}/${subTopic.slug}`] = {
-          title: `${subTopic.icon || '📄'} ${subTopic.name}`,
+          title: `${subTopic.icon || "📄"} ${subTopic.name}`,
           type: "page",
           href: `/topics/${topic.slug}/${subTopic.slug}`,
         };
@@ -121,13 +122,12 @@ export default async function handler(req: any, res: any) {
       navigation: navigationStructure,
       message: `Successfully fetched ${topics.length} topics`,
     });
-
   } catch (error) {
-    console.error('💥 Topics API error:', error);
+    console.error("💥 Topics API error:", error);
     res.status(500).json({
       success: false,
       error: error.message,
-      details: 'Failed to fetch topics from database',
+      details: "Failed to fetch topics from database",
       timestamp: new Date().toISOString(),
     });
   } finally {
@@ -137,14 +137,23 @@ export default async function handler(req: any, res: any) {
 
 // Helper functions
 function getTopicColor(order: number): string {
-  const colors = ['blue', 'green', 'purple', 'orange', 'red', 'indigo', 'pink', 'teal'];
-  return colors[order % colors.length] || 'blue';
+  const colors = [
+    "blue",
+    "green",
+    "purple",
+    "orange",
+    "red",
+    "indigo",
+    "pink",
+    "teal",
+  ];
+  return colors[order % colors.length] || "blue";
 }
 
 function getDifficultyFromOrder(order: number): string {
-  if (order <= 2) return 'beginner';
-  if (order <= 5) return 'intermediate';
-  return 'advanced';
+  if (order <= 2) return "beginner";
+  if (order <= 5) return "intermediate";
+  return "advanced";
 }
 
 function getEstimatedTime(order: number): number {
