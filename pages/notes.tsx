@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import {
   Calendar,
@@ -38,20 +39,40 @@ interface Note {
 }
 
 export default function NotesPage() {
+  const router = useRouter();
+  const { topicSlug, subTopicSlug } = router.query;
+
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterInfo, setFilterInfo] = useState<{
+    topicName?: string;
+    subTopicName?: string;
+  }>({});
 
   useEffect(() => {
     fetchNotes();
-  }, []);
+  }, [topicSlug, subTopicSlug]);
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch("/api/notes");
+      const params = new URLSearchParams();
+      if (topicSlug) params.append("topicSlug", topicSlug as string);
+      if (subTopicSlug) params.append("subTopicSlug", subTopicSlug as string);
+
+      const response = await fetch(`/api/notes?${params.toString()}`);
       const data = await response.json();
       setNotes(data.notes || []);
+
+      // Set filter info for display
+      if (data.notes?.length > 0) {
+        const firstNote = data.notes[0];
+        setFilterInfo({
+          topicName: firstNote.topic?.name,
+          subTopicName: firstNote.subTopic?.name,
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch notes:", error);
     } finally {
@@ -174,12 +195,29 @@ export default function NotesPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Study Notes
+            {filterInfo.subTopicName
+              ? `${filterInfo.subTopicName} Notes`
+              : filterInfo.topicName
+              ? `${filterInfo.topicName} Notes`
+              : "Study Notes"}
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Quick reference notes and cheatsheets for programming concepts,
-            frameworks, and technologies organized by topic.
+            {filterInfo.subTopicName || filterInfo.topicName
+              ? `Quick reference notes and cheatsheets for ${
+                  filterInfo.subTopicName || filterInfo.topicName
+                }`
+              : "Quick reference notes and cheatsheets for programming concepts, frameworks, and technologies organized by topic."}
           </p>
+          {(filterInfo.topicName || filterInfo.subTopicName) && (
+            <div className="mt-4">
+              <Link
+                href="/notes"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+              >
+                ← View all notes
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Search and Filters */}

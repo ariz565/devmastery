@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import {
   Calendar,
@@ -42,19 +43,39 @@ interface BlogPost {
 }
 
 export default function BlogsListPage() {
+  const router = useRouter();
+  const { topicSlug, subTopicSlug } = router.query;
+
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterInfo, setFilterInfo] = useState<{
+    topicName?: string;
+    subTopicName?: string;
+  }>({});
 
   useEffect(() => {
     fetchBlogs();
-  }, []);
+  }, [topicSlug, subTopicSlug]);
   const fetchBlogs = async () => {
     try {
-      const response = await fetch("/api/blogs");
+      const params = new URLSearchParams();
+      if (topicSlug) params.append("topicSlug", topicSlug as string);
+      if (subTopicSlug) params.append("subTopicSlug", subTopicSlug as string);
+
+      const response = await fetch(`/api/blogs?${params.toString()}`);
       const data = await response.json();
       setBlogs(data.blogs || []);
+
+      // Set filter info for display
+      if (data.blogs?.length > 0) {
+        const firstBlog = data.blogs[0];
+        setFilterInfo({
+          topicName: firstBlog.topic?.name,
+          subTopicName: firstBlog.subTopic?.name,
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch blogs:", error);
     } finally {
@@ -166,12 +187,29 @@ export default function BlogsListPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">
-            DevMastery Blog
+            {filterInfo.subTopicName
+              ? `${filterInfo.subTopicName} Blogs`
+              : filterInfo.topicName
+              ? `${filterInfo.topicName} Blogs`
+              : "DevMastery Blog"}
           </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Explore our collection of technical articles, tutorials, and
-            insights on programming, data structures, web development, and more.
+            {filterInfo.subTopicName || filterInfo.topicName
+              ? `Explore articles and tutorials about ${
+                  filterInfo.subTopicName || filterInfo.topicName
+                }`
+              : "Explore our collection of technical articles, tutorials, and insights on programming, data structures, web development, and more."}
           </p>
+          {(filterInfo.topicName || filterInfo.subTopicName) && (
+            <div className="mt-4">
+              <Link
+                href="/blogs"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                ← View all blogs
+              </Link>
+            </div>
+          )}
         </div>
         {/* Search and Filters */}
         <div className="mb-8 flex flex-col sm:flex-row gap-4">

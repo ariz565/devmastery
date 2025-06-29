@@ -21,6 +21,13 @@ export default async function handler(req: any, res: any) {
             description: true,
             icon: true,
             order: true,
+            _count: {
+              select: {
+                blogs: true,
+                notes: true,
+                leetcodeProblems: true,
+              },
+            },
           },
           orderBy: { order: "asc" },
         },
@@ -87,11 +94,16 @@ export default async function handler(req: any, res: any) {
         difficulty: getDifficultyFromOrder(sub.order),
         estimatedTime: getEstimatedTime(sub.order),
         order: sub.order,
-        // Add _count for frontend compatibility
+        // Use actual counts from database
         _count: {
-          blogs: 0,
-          notes: 0,
-          leetcodeProblems: 0,
+          blogs: sub._count?.blogs || 0,
+          notes: sub._count?.notes || 0,
+          leetcodeProblems: sub._count?.leetcodeProblems || 0,
+        },
+        stats: {
+          blogs: sub._count?.blogs || 0,
+          notes: sub._count?.notes || 0,
+          problems: sub._count?.leetcodeProblems || 0,
         },
       })),
       // Add _count for frontend compatibility
