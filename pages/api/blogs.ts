@@ -105,6 +105,13 @@ export default async function handler(req: any, res: any) {
       authorAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
         blog.author?.name || "Anonymous"
       )}&background=random`,
+      author: {
+        name: blog.author?.name || "Anonymous",
+        email: blog.author?.email || "",
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          blog.author?.name || "Anonymous"
+        )}&background=random`,
+      },
       // Generate demo engagement stats
       views: Math.floor(Math.random() * 1000) + 100,
       likes: Math.floor(Math.random() * 50) + 10,
