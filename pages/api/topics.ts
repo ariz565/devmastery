@@ -76,22 +76,34 @@ export default async function handler(req: any, res: any) {
       createdAt: topic.createdAt,
       updatedAt: topic.updatedAt,
       authorName: topic.author?.name || "DevMastery Team",
-      subtopics:
-        topic.subTopics?.map((sub) => ({
-          id: sub.id,
-          title: sub.name, // Map 'name' to 'title'
-          name: sub.name,
-          slug: sub.slug,
-          description: sub.description || `Learn about ${sub.name}`,
-          icon: sub.icon || "FileText",
-          difficulty: getDifficultyFromOrder(sub.order),
-          estimatedTime: getEstimatedTime(sub.order),
-          order: sub.order,
-        })) || [],
+      // Ensure subTopics is always an array - this fixes the frontend error
+      subTopics: (topic.subTopics || []).map((sub) => ({
+        id: sub.id,
+        title: sub.name, // Map 'name' to 'title'
+        name: sub.name,
+        slug: sub.slug,
+        description: sub.description || `Learn about ${sub.name}`,
+        icon: sub.icon || "FileText",
+        difficulty: getDifficultyFromOrder(sub.order),
+        estimatedTime: getEstimatedTime(sub.order),
+        order: sub.order,
+        // Add _count for frontend compatibility
+        _count: {
+          blogs: 0,
+          notes: 0,
+          leetcodeProblems: 0,
+        },
+      })),
+      // Add _count for frontend compatibility
+      _count: {
+        blogs: topic._count?.blogs || 0,
+        notes: topic._count?.notes || 0,
+        leetcodeProblems: topic._count?.leetcodeProblems || 0,
+      },
       stats: {
-        blogs: topic._count.blogs,
-        notes: topic._count.notes,
-        problems: topic._count.leetcodeProblems,
+        blogs: topic._count?.blogs || 0,
+        notes: topic._count?.notes || 0,
+        problems: topic._count?.leetcodeProblems || 0,
       },
     }));
 
@@ -103,8 +115,9 @@ export default async function handler(req: any, res: any) {
         href: `/topics/${topic.slug}`,
       };
 
-      // Add subtopics
-      topic.subTopics.forEach((subTopic) => {
+      // Add subtopics - ensure subTopics is an array
+      const subTopics = topic.subTopics || [];
+      subTopics.forEach((subTopic) => {
         acc[`${topic.slug}/${subTopic.slug}`] = {
           title: `${subTopic.icon || "📄"} ${subTopic.name}`,
           type: "page",
