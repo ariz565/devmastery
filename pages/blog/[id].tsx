@@ -76,6 +76,7 @@ export default function BlogDetailPage() {
   const [isLightMode, setIsLightMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [showReadingTools, setShowReadingTools] = useState(false); // Initially hidden for mobile-first approach
   const [copiedText, setCopiedText] = useState("");
   const [showCopyAlert, setShowCopyAlert] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -95,6 +96,24 @@ export default function BlogDetailPage() {
       fetchBlog(id as string);
     }
   }, [id]);
+
+  // Responsive reading tools visibility
+  useEffect(() => {
+    const handleResize = () => {
+      const isLargeScreen = window.innerWidth >= 1024; // lg breakpoint
+      if (isLargeScreen) {
+        setShowReadingTools(true); // Auto-show on large screens
+      } else {
+        setShowReadingTools(false); // Hide on mobile by default
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -306,7 +325,7 @@ export default function BlogDetailPage() {
 
   return (
     <div
-      className={`min-h-screen transition-all duration-300 ${
+      className={`min-h-screen transition-all duration-300 reading-zoom-container ${
         isFullscreen ? "fixed inset-0 z-50" : "py-12"
       } ${
         isLightMode
@@ -314,8 +333,8 @@ export default function BlogDetailPage() {
           : "bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white"
       } relative overflow-hidden`}
       style={{
-        fontSize: `${zoomLevel}%`,
-      }}
+        '--zoom-level': `${zoomLevel}%`,
+      } as React.CSSProperties}
     >
       {/* Enhanced Reading Progress Bar */}
       <ReadingProgress position="top" />
@@ -332,7 +351,7 @@ export default function BlogDetailPage() {
       )}
 
       {/* Professional Floating Reading Controls */}
-      {showControls && (
+      {(showControls && showReadingTools) && (
         <div className="fixed right-4 lg:right-6 top-1/2 transform -translate-y-1/2 z-50 space-y-3">
           <div className="bg-white/98 dark:bg-gray-800/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/60 dark:border-gray-700/60 p-3 max-w-[60px] transition-all duration-300">
             {/* Zoom Controls */}
@@ -448,6 +467,30 @@ export default function BlogDetailPage() {
         </button>
       )}
 
+      {/* Mobile Reading Tools Toggle - Floating Action Button */}
+      <button
+        onClick={() => setShowReadingTools(!showReadingTools)}
+        className={`fixed bottom-6 right-20 z-50 lg:hidden p-3 rounded-full shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-110 ${
+          showReadingTools
+            ? "bg-green-600 hover:bg-green-700 text-white"
+            : "bg-gray-600 hover:bg-gray-700 text-white"
+        }`}
+        title={showReadingTools ? "Hide reading tools" : "Show reading tools"}
+      >
+        <Settings 
+          className={`w-5 h-5 transition-transform duration-200 ${
+            showReadingTools ? "rotate-90" : ""
+          }`} 
+        />
+      </button>
+
+      {/* Reading Tools Hint for Mobile (when tools are hidden) */}
+      {!showReadingTools && (
+        <div className="fixed bottom-20 right-16 z-40 lg:hidden bg-black/80 text-white text-xs px-2 py-1 rounded-md opacity-60 pointer-events-none">
+          Reading Tools
+        </div>
+      )}
+
       {/* Reading Time Indicator */}
       {blog && readingTime > 0 && (
         <div className="fixed bottom-6 left-6 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-xl border border-gray-200/60 dark:border-gray-700/60 px-4 py-2">
@@ -521,6 +564,7 @@ export default function BlogDetailPage() {
                         ? "text-red-500 bg-red-50 dark:bg-red-900/20"
                         : "text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                     }`}
+                    title={isLiked ? "Unlike this post" : "Like this post"}
                   >
                     <Heart
                       className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`}
@@ -533,9 +577,26 @@ export default function BlogDetailPage() {
                         ? "text-blue-500 bg-blue-50 dark:bg-blue-900/20"
                         : "text-gray-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                     }`}
+                    title={isSaved ? "Unsave this post" : "Save this post"}
                   >
                     <Bookmark
                       className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`}
+                    />
+                  </button>
+                  {/* Reading Tools Toggle Button */}
+                  <button
+                    onClick={() => setShowReadingTools(!showReadingTools)}
+                    className={`p-2 rounded-lg transition-all duration-200 ${
+                      showReadingTools
+                        ? "text-green-500 bg-green-50 dark:bg-green-900/20"
+                        : "text-gray-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20"
+                    }`}
+                    title={showReadingTools ? "Hide reading tools" : "Show reading tools"}
+                  >
+                    <Settings
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        showReadingTools ? "rotate-90" : ""
+                      }`}
                     />
                   </button>
                 </div>

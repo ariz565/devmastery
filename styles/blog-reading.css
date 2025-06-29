@@ -220,6 +220,62 @@
   }
 }
 
+/* Dynamic zoom using CSS custom properties */
+.reading-zoom-container {
+  --zoom-level: 100%;
+  font-size: var(--zoom-level);
+  transition: font-size 0.2s ease-in-out;
+}
+
+/* Reading tools animations */
+.reading-tools-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.reading-tools-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.reading-tools-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reading-tools-exit-active {
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Progress bar animations */
+.progress-bar-width {
+  width: var(--progress, 0%);
+}
+
+.progress-bar-height {
+  height: var(--progress, 0%);
+}
+
+/* Mobile-first reading tools */
+@media (max-width: 1023px) {
+  .reading-tools-mobile-hint {
+    animation: pulse 2s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 /* Additional comprehensive fixes for all code visibility issues */
 
 /* Force all text in code blocks to be light colored */
